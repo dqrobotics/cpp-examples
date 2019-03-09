@@ -5,5 +5,5 @@ project(jacobian_time_derivative)
 
 
 ## Test
-include_directories(../../../cpp/include)
-add_executable(${PROJECT_NAME} "main.cpp" "../../../cpp/src/DQ.cpp" "../../../cpp/src/DQ_kinematics.cpp")
+include_directories(../../cpp/include)
+add_executable(${PROJECT_NAME} "main.cpp" "../../cpp/src/DQ.cpp" "../../cpp/src/DQ_kinematics.cpp")
