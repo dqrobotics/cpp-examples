@@ -8,7 +8,7 @@
 using namespace DQ_robotics;
 int main()
 {
-    const int RUN_COUNT = 1000;
+    const int RUN_COUNT = 1000000;
 
     DQ_kinematics robot = KukkaKinematics();
 
@@ -20,7 +20,7 @@ int main()
     }
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> diff = end-start;
-    std::cout << "Time to calculate a " << theta.size() << " DOF random vector " << RUN_COUNT << " times was " << diff.count() << " s." <<std::endl;
+    std::cout << "Time to calculate a " << theta.size() << " DOF random vector " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
 
     MatrixXd pose_jacobian;
     start = std::chrono::system_clock::now();
@@ -31,7 +31,7 @@ int main()
     }
     end = std::chrono::system_clock::now();
     diff = end-start;
-    std::cout << "Time to calculate a " << pose_jacobian.cols() << " DOF Jacobian " << RUN_COUNT << " times was " << diff.count() << " s." <<std::endl;
+    std::cout << "Time to calculate a " << pose_jacobian.cols() << " DOF Jacobian " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
 
     DQ pose;
     start = std::chrono::system_clock::now();
@@ -42,7 +42,7 @@ int main()
     }
     end = std::chrono::system_clock::now();
     diff = end-start;
-    std::cout << "Time to calculate a " << pose_jacobian.cols() << " DOF fkm " << RUN_COUNT << " times was " << diff.count() << " s." <<std::endl;
+    std::cout << "Time to calculate a " << pose_jacobian.cols() << " DOF fkm " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
 
     MatrixXd translation_jacobian;
     start = std::chrono::system_clock::now();
@@ -55,7 +55,7 @@ int main()
     }
     end = std::chrono::system_clock::now();
     diff = end-start;
-    std::cout << "Time to calculate a " << translation_jacobian.cols() << " DOF translation Jacobian (including requirements) " << RUN_COUNT << " times was " << diff.count() << " s." <<std::endl;
+    std::cout << "Time to calculate a " << translation_jacobian.cols() << " DOF translation Jacobian (including requirements) " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
 
     MatrixXd rotation_jacobian;
     start = std::chrono::system_clock::now();
@@ -67,7 +67,7 @@ int main()
     }
     end = std::chrono::system_clock::now();
     diff = end-start;
-    std::cout << "Time to calculate a " << rotation_jacobian.cols() << " DOF rotation Jacobian (including requirements) " << RUN_COUNT << " times was " << diff.count() << " s." <<std::endl;
+    std::cout << "Time to calculate a " << rotation_jacobian.cols() << " DOF rotation Jacobian (including requirements) " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
 
     DQ a;
     start = std::chrono::system_clock::now();
@@ -77,7 +77,7 @@ int main()
     }
     end = std::chrono::system_clock::now();
     diff = end-start;
-    std::cout << "Time to create a dual quaternion from a random VectorXd " << RUN_COUNT << " times was " << diff.count() << " s." <<std::endl;
+    std::cout << "Time to create a dual quaternion from a random VectorXd " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
 
     DQ b;
     DQ c;
@@ -90,7 +90,7 @@ int main()
     }
     end = std::chrono::system_clock::now();
     diff = end-start;
-    std::cout << "Time to calculate the dual quaternion product " << RUN_COUNT << " times was " << diff.count() << " s." <<std::endl;
+    std::cout << "Time to calculate the dual quaternion product " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
 
     start = std::chrono::system_clock::now();
     for(int i=0;i<RUN_COUNT;i++)
@@ -101,7 +101,7 @@ int main()
     }
     end = std::chrono::system_clock::now();
     diff = end-start;
-    std::cout << "Time to calculate the dual quaternion sum " << RUN_COUNT << " times was " << diff.count() << " s." <<std::endl;
+    std::cout << "Time to calculate the dual quaternion sum " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
 
 
     return 0;
