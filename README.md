@@ -28,7 +28,7 @@ make
 ```
 ## Opening examples as QTCreator Projects
 
-1. Download and install QT from https://www.qt.io/download or your perferred source. Installing a gcc64 compatible kit, such as Qt 5.12 is also recommended
+1. Download and install QT from https://www.qt.io/download or your favorite source. Installing a gcc64 compatible kit, such as Qt 5.12 is also recommended
 
 2. File >> Open File or Project 
 
