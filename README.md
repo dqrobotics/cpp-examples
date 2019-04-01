@@ -26,3 +26,12 @@ make
 ```
 ./performance_evaluation
 ```
+## Opening examples as QTCreator Projects
+
+1. Download and install QT from https://www.qt.io/download or your perferred source. Installing a gcc64 compatible kit, such as Qt 5.12 is also recommended
+
+2. File >> Open File or Project 
+
+3. Choose the example's CMakeLists.txt
+
+4. Configure the QTCreator kit and the source code should show up and be compilable.
