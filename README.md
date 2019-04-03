@@ -17,7 +17,7 @@ git clone https://github.com/dqrobotics/cpp-examples.git --recursive
 cd cmake/performance_evaluation
 mkdir build
 cd build
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 make
 ```
 
