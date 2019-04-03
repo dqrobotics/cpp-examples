@@ -8,7 +8,7 @@
 using namespace DQ_robotics;
 int main()
 {
-    const int RUN_COUNT = 1000000;
+    const int RUN_COUNT = 10000;
 
     DQ_kinematics robot = KukkaKinematics();
 
@@ -68,6 +68,69 @@ int main()
     end = std::chrono::system_clock::now();
     diff = end-start;
     std::cout << "Time to calculate a " << rotation_jacobian.cols() << " DOF rotation Jacobian (including requirements) " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
+
+    MatrixXd point_to_point_distance_jacobian;
+    DQ point;
+    start = std::chrono::system_clock::now();
+    for(int i=0;i<RUN_COUNT;i++)
+    {
+        theta                = VectorXd::Random(7);
+        pose_jacobian        = robot.pose_jacobian(theta);
+        pose                 = robot.fkm(theta);
+        translation_jacobian = DQ_robotics::translation_jacobian(pose_jacobian,pose);
+        point                = DQ(VectorXd::Random(8));
+        point                = normalize(point);
+
+        point_to_point_distance_jacobian = DQ_robotics::point_to_point_distance_jacobian(translation_jacobian,translation(pose),translation(point));
+    }
+    end = std::chrono::system_clock::now();
+    diff = end-start;
+    std::cout << "Time to calculate a " << point_to_point_distance_jacobian.cols() << " DOF point to point distance Jacobian (including requirements) " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
+
+    MatrixXd point_to_line_distance_jacobian;
+    DQ line;
+    start = std::chrono::system_clock::now();
+    for(int i=0;i<RUN_COUNT;i++)
+    {
+        theta                = VectorXd::Random(7);
+        pose_jacobian        = robot.pose_jacobian(theta);
+        pose                 = robot.fkm(theta);
+        translation_jacobian = DQ_robotics::translation_jacobian(pose_jacobian,pose);
+        //Create random plucker line
+        DQ l = DQ(VectorXd::Random(4));
+        l.q(0)=0.0;
+        l=normalize(l);
+        DQ pl = DQ(VectorXd::Random(4));
+        pl.q(0)=0.0;
+        line = l+E_*cross(l,pl);
+
+        point_to_line_distance_jacobian = DQ_robotics::point_to_line_distance_jacobian(translation_jacobian,translation(pose),line);
+    }
+    end = std::chrono::system_clock::now();
+    diff = end-start;
+    std::cout << "Time to calculate a " << point_to_line_distance_jacobian.cols() << " DOF point to line distance Jacobian (including requirements) " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
+
+    MatrixXd point_to_plane_distance_jacobian;
+    DQ plane;
+    start = std::chrono::system_clock::now();
+    for(int i=0;i<RUN_COUNT;i++)
+    {
+        theta                = VectorXd::Random(7);
+        pose_jacobian        = robot.pose_jacobian(theta);
+        pose                 = robot.fkm(theta);
+        translation_jacobian = DQ_robotics::translation_jacobian(pose_jacobian,pose);
+        //Create random plane
+        DQ n = DQ(VectorXd::Random(4));
+        n.q(0)=0.0;
+        n = normalize(n);
+        plane = n+E_*VectorXd::Random(1)(0);
+
+        point_to_plane_distance_jacobian = DQ_robotics::point_to_plane_distance_jacobian(translation_jacobian,translation(pose),plane);
+    }
+    end = std::chrono::system_clock::now();
+    diff = end-start;
+    std::cout << "Time to calculate a " << point_to_plane_distance_jacobian.cols() << " DOF point to plane distance Jacobian (including requirements) " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
+
 
     DQ a;
     start = std::chrono::system_clock::now();
