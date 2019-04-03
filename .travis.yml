@@ -20,9 +20,5 @@ script:
     ############################################################################
     # Build main and tests
     ############################################################################
-     - for d in */; do
-     - mkdir -p build
-     - cd build
-     - cmake -DCMAKE_CXX_FLAGS=${CXX_FLAGS} -DCMAKE_BUILD_TYPE=Release .. 
-     - make
-     - done
+     - chmod +x .build.sh
+     - ./.build.sh
