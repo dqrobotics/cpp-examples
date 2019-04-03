@@ -1,4 +1,4 @@
-# dq-robotics-cpp-examples
+# dq-robotics-cpp-examples [![Build Status](https://travis-ci.com/dqrobotics/cpp-examples.svg?branch=master)](https://travis-ci.com/dqrobotics/cpp-examples)
 DQ Robotics C++ examples
 
 ## Running examples
