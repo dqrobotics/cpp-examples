@@ -1,16 +1,16 @@
 #include <iostream>
 #include <dqrobotics/DQ.h>
-#include <dqrobotics/DQ_kinematics.h>
-#include <dqrobotics/robot_dh/Kukka.h>
 #include <cmath>
 #include <chrono>
+
+#include <dqrobotics/robots/KukaLw4Robot.h>
 
 using namespace DQ_robotics;
 int main()
 {
     const int RUN_COUNT = 10000;
 
-    DQ_kinematics robot = KukkaKinematics();
+    DQ_SerialManipulator robot = KukaLw4Robot::kinematics();
 
     VectorXd theta;
     auto start = std::chrono::system_clock::now();
@@ -51,7 +51,7 @@ int main()
         theta                = VectorXd::Random(7);
         pose                 = robot.fkm(theta);
         pose_jacobian        = robot.pose_jacobian(theta);
-        translation_jacobian = DQ_robotics::translation_jacobian(pose_jacobian,pose);
+        translation_jacobian = DQ_Kinematics::translation_jacobian(pose_jacobian,pose);
     }
     end = std::chrono::system_clock::now();
     diff = end-start;
@@ -63,7 +63,7 @@ int main()
     {
         theta             = VectorXd::Random(7);
         pose_jacobian     = robot.pose_jacobian(theta);
-        rotation_jacobian = DQ_robotics::rotation_jacobian(pose_jacobian);
+        rotation_jacobian = DQ_Kinematics::rotation_jacobian(pose_jacobian);
     }
     end = std::chrono::system_clock::now();
     diff = end-start;
@@ -77,11 +77,11 @@ int main()
         theta                = VectorXd::Random(7);
         pose_jacobian        = robot.pose_jacobian(theta);
         pose                 = robot.fkm(theta);
-        translation_jacobian = DQ_robotics::translation_jacobian(pose_jacobian,pose);
+        translation_jacobian = DQ_Kinematics::translation_jacobian(pose_jacobian,pose);
         point                = DQ(VectorXd::Random(8));
         point                = normalize(point);
 
-        point_to_point_distance_jacobian = DQ_robotics::point_to_point_distance_jacobian(translation_jacobian,translation(pose),translation(point));
+        point_to_point_distance_jacobian = DQ_Kinematics::point_to_point_distance_jacobian(translation_jacobian,translation(pose),translation(point));
     }
     end = std::chrono::system_clock::now();
     diff = end-start;
@@ -95,7 +95,7 @@ int main()
         theta                = VectorXd::Random(7);
         pose_jacobian        = robot.pose_jacobian(theta);
         pose                 = robot.fkm(theta);
-        translation_jacobian = DQ_robotics::translation_jacobian(pose_jacobian,pose);
+        translation_jacobian = DQ_Kinematics::translation_jacobian(pose_jacobian,pose);
         //Create random plucker line
         DQ l = DQ(VectorXd::Random(4));
         l.q(0)=0.0;
@@ -104,7 +104,7 @@ int main()
         pl.q(0)=0.0;
         line = l+E_*cross(l,pl);
 
-        point_to_line_distance_jacobian = DQ_robotics::point_to_line_distance_jacobian(translation_jacobian,translation(pose),line);
+        point_to_line_distance_jacobian = DQ_Kinematics::point_to_line_distance_jacobian(translation_jacobian,translation(pose),line);
     }
     end = std::chrono::system_clock::now();
     diff = end-start;
@@ -118,14 +118,14 @@ int main()
         theta                = VectorXd::Random(7);
         pose_jacobian        = robot.pose_jacobian(theta);
         pose                 = robot.fkm(theta);
-        translation_jacobian = DQ_robotics::translation_jacobian(pose_jacobian,pose);
+        translation_jacobian = DQ_Kinematics::translation_jacobian(pose_jacobian,pose);
         //Create random plane
         DQ n = DQ(VectorXd::Random(4));
         n.q(0)=0.0;
         n = normalize(n);
         plane = n+E_*VectorXd::Random(1)(0);
 
-        point_to_plane_distance_jacobian = DQ_robotics::point_to_plane_distance_jacobian(translation_jacobian,translation(pose),plane);
+        point_to_plane_distance_jacobian = DQ_Kinematics::point_to_plane_distance_jacobian(translation_jacobian,translation(pose),plane);
     }
     end = std::chrono::system_clock::now();
     diff = end-start;

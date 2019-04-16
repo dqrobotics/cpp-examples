@@ -1,7 +1,5 @@
 #include <iostream>
-#include <dqrobotics/DQ.h>
-#include <dqrobotics/DQ_kinematics.h>
-#include <dqrobotics/robot_dh/Kukka.h>
+#include <dqrobotics/robots/KukaLw4Robot.h>
 #include <cmath>
 
 using namespace DQ_robotics;
@@ -9,7 +7,7 @@ int main()
 {
 
     //Create a new DQ_kinematics object with KUKA LWR parameters
-    DQ_kinematics kuka = KukkaKinematics();
+    DQ_SerialManipulator kuka = KukaLw4Robot::kinematics();
 
     //Integration step for the numerical calculations
     double T = 1e-3;
