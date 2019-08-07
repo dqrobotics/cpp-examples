@@ -26,6 +26,7 @@ Contributors:
 #include <chrono>
 
 #include <dqrobotics/robots/KukaLw4Robot.h>
+#include <dqrobotics/robot_control/DQ_TaskSpacePseudoInverseController.h>
 
 using namespace DQ_robotics;
 int main()
@@ -153,6 +154,26 @@ int main()
     diff = end-start;
     std::cout << "Time to calculate a " << point_to_plane_distance_jacobian.cols() << " DOF point to plane distance Jacobian (including requirements) " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
 
+    DQ xd;
+    VectorXd theta_d;
+    DQ_TaskSpacePseudoInverseController taskspace_pseudoinverse_controller(&robot);
+    taskspace_pseudoinverse_controller.set_gain(MatrixXd::Identity(7,7)*0.1);
+    taskspace_pseudoinverse_controller.set_damping(0.001);
+    taskspace_pseudoinverse_controller.set_control_objective(ControlObjective::Pose);
+    start = std::chrono::system_clock::now();
+    for(int i=0;i<RUN_COUNT;i++)
+    {
+        //Assign random xd
+        theta_d              = VectorXd::Random(7);
+        xd = robot.fkm(theta_d);
+        theta                = VectorXd::Random(7);
+
+        //Create random plane
+        taskspace_pseudoinverse_controller.compute_setpoint_control_signal(theta,vec8(xd));
+    }
+    end = std::chrono::system_clock::now();
+    diff = end-start;
+    std::cout << "Time to calculate the control signal of a " << robot.get_dim_configuration_space() << " DOF robot using the SVD pseudo-inverse (including requirements) " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
 
     DQ a;
     start = std::chrono::system_clock::now();

@@ -4,3 +4,6 @@
 [submodule "interfaces/cpp-interface-vrep"]
 	path = interfaces/cpp-interface-vrep
 	url = https://github.com/dqrobotics/cpp-interface-vrep.git
+[submodule "solvers/cpp-interface-cplex"]
+	path = solvers/cpp-interface-cplex
+	url = https://github.com/dqrobotics/cpp-interface-cplex.git

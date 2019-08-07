@@ -15,8 +15,13 @@ add_executable(${PROJECT_NAME}
     ../../cpp/src/robot_modeling/DQ_DifferentialDriveRobot.cpp
     ../../cpp/src/robot_modeling/DQ_WholeBody.cpp
 
+    ../../cpp/src/robot_control/DQ_TaskSpacePseudoInverseController.cpp
+    ../../cpp/src/robot_control/DQ_KinematicController.cpp
+
     ../../cpp/src/robots/Ax18ManipulatorRobot.cpp
     ../../cpp/src/robots/BarrettWamArmRobot.cpp
     ../../cpp/src/robots/ComauSmartSixRobot.cpp
     ../../cpp/src/robots/KukaLw4Robot.cpp
+
+    ../../cpp/src/utils/DQ_LinearAlgebra.cpp
     )
