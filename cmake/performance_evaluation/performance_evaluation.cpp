@@ -31,7 +31,7 @@ Contributors:
 using namespace DQ_robotics;
 int main()
 {
-    const int RUN_COUNT = 10000;
+    const int RUN_COUNT = 1000000;
 
     DQ_SerialManipulator robot = KukaLw4Robot::kinematics();
 
@@ -157,7 +157,7 @@ int main()
     DQ xd;
     VectorXd theta_d;
     DQ_TaskSpacePseudoInverseController taskspace_pseudoinverse_controller(&robot);
-    taskspace_pseudoinverse_controller.set_gain(MatrixXd::Identity(7,7)*0.1);
+    taskspace_pseudoinverse_controller.set_gain(MatrixXd::Identity(8,8)*0.1);
     taskspace_pseudoinverse_controller.set_damping(0.001);
     taskspace_pseudoinverse_controller.set_control_objective(ControlObjective::Pose);
     start = std::chrono::system_clock::now();
