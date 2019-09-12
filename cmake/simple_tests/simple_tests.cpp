@@ -21,11 +21,15 @@ Contributors:
 */
 
 #include "test_issue_24.h"
+#include "test_issue_25.h"
 
 int main()
 {
     //Evaluate DQ constructors
     test_issue_24();
+
+    //Evaluate rotation_angle()
+    test_issue_25();
 
     return 0;
 }
