@@ -176,16 +176,17 @@ int main()
     std::cout << "Time to calculate the control signal of a " << robot.get_dim_configuration_space() << " DOF robot using the SVD pseudo-inverse (including requirements) " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
 
     DQ a;
+    DQ b;
     start = std::chrono::system_clock::now();
     for(int i=0;i<RUN_COUNT;i++)
     {
         a = DQ(VectorXd::Random(8));
+        b = DQ(VectorXd::Random(8));
     }
     end = std::chrono::system_clock::now();
     diff = end-start;
-    std::cout << "Time to create a dual quaternion from a random VectorXd " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
+    std::cout << "Time to create two dual quaternions from a random VectorXd " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
 
-    DQ b;
     DQ c;
     start = std::chrono::system_clock::now();
     for(int i=0;i<RUN_COUNT;i++)
