@@ -22,14 +22,21 @@ Contributors:
 
 #include "test_issue_24.h"
 #include "test_issue_25.h"
+#include "test_issue_26.h"
 
 int main()
 {
     //Evaluate DQ constructors
+    //https://github.com/dqrobotics/cpp/issues/24
     test_issue_24();
 
     //Evaluate rotation_angle()
+    //https://github.com/dqrobotics/cpp/issues/25
     test_issue_25();
+
+    //Evaluate log()
+    //https://github.com/dqrobotics/cpp/issues/26
+    test_issue_26();
 
     return 0;
 }

@@ -1,3 +1,6 @@
+//Contributed by @mmmarinho
+//https://github.com/dqrobotics/cpp/issues/24
+
 #include "test_issue_24.h"
 
 #include<dqrobotics/DQ.h>

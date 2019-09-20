@@ -8,6 +8,7 @@ add_executable(${PROJECT_NAME}
     simple_tests.cpp
     test_issue_24.cpp
     test_issue_25.cpp
+    test_issue_26.cpp
 
     ../../cpp/src/DQ.cpp
 
