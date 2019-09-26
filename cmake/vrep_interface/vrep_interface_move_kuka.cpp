@@ -26,6 +26,7 @@ Contributors:
 
 #include <dqrobotics/DQ.h>
 #include <dqrobotics/robots/KukaLw4Robot.h>
+#include <dqrobotics/robots/KukaYoubotRobot.h>
 #include <dqrobotics/interfaces/vrep_interface.h>
 #include <dqrobotics/utils/DQ_LinearAlgebra.h>
 #include <dqrobotics/utils/DQ_Constants.h>

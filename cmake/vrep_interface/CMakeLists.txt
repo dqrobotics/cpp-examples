@@ -32,9 +32,14 @@ add_executable(${PROJECT_NAME}
     ../../cpp/src/robots/BarrettWamArmRobot.cpp
     ../../cpp/src/robots/ComauSmartSixRobot.cpp
     ../../cpp/src/robots/KukaLw4Robot.cpp
+    ../../cpp/src/robots/KukaYoubotRobot.cpp
 
     ../../interfaces/cpp-interface-vrep/src/vrep_interface.cpp
     ../../interfaces/cpp-interface-vrep/src/VrepInterfaceMapElement.cpp
+    ../../interfaces/cpp-interface-vrep/src/DQ_VrepRobot.cpp
+    ../../interfaces/cpp-interface-vrep/src/LBR4pVrepRobot.cpp
+    ../../interfaces/cpp-interface-vrep/src/YouBotVrepRobot.cpp
+
     ../../interfaces/cpp-interface-vrep/coppeliarobotics/remoteApi/extApi.c
     ../../interfaces/cpp-interface-vrep/coppeliarobotics/remoteApi/extApiPlatform.h
     ../../interfaces/cpp-interface-vrep/coppeliarobotics/remoteApi/extApiPlatform.c
