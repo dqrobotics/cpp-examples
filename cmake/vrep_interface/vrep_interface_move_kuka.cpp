@@ -34,51 +34,63 @@ int main(void)
 {
     VrepInterface vi;
 
-    try
+    // try
+    // {
+    if(!vi.connect(19997,10,10))
     {
-        vi.connect(19997,100,10);
-
-        std::cout << "Starting V-REP simulation..." << std::endl;
-        vi.start_simulation();
-
-        std::vector<std::string> joint_names = {"LBR_iiwa_14_R820_joint1","LBR_iiwa_14_R820_joint2","LBR_iiwa_14_R820_joint3","LBR_iiwa_14_R820_joint4","LBR_iiwa_14_R820_joint5","LBR_iiwa_14_R820_joint6","LBR_iiwa_14_R820_joint7"};
-
-        DQ_SerialManipulator robot = KukaLw4Robot::kinematics();
-
-        VectorXd theta_d(7);
-        theta_d << 0.,pi/2.,0.,pi/2.,0.,pi/2.,0.;
-        DQ xd = robot.fkm(theta_d);
-
-        VectorXd theta = vi.get_joint_positions(joint_names,VrepInterface::OP_STREAMING);
-
-        VectorXd e(8);
-        e(0)=1.0;
-        std::cout << "Starting control loop..." << std::endl;
-        while(e.norm()>0.01)
-        {
-            theta      = vi.get_joint_positions(joint_names,VrepInterface::OP_BUFFER);
-            DQ x       = robot.fkm(theta);
-            e          = vec8(x-xd);
-            MatrixXd J = robot.pose_jacobian(theta);
-
-            VectorXd u = -0.01*pinv(J)*e;
-            theta      = theta+u;
-            vi.set_joint_target_positions(joint_names,theta,VrepInterface::OP_ONESHOT);
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        }
-        std::cout << "Control finished..." << std::endl;
-
-        std::cout << "Stopping V-REP simulation..." << std::endl;
-        vi.stop_simulation();
-
-        vi.disconnect();
-
-    } catch (...)
-    {
-        std::cout << "There was an error connecting to V-REP, please check that it is open and that the Kuka Robot is in the scene." << std::endl;
         vi.disconnect_all();
+        return -1;
     }
+
+
+    std::cout << "Starting V-REP simulation..." << std::endl;
+    vi.start_simulation();
+
+    std::vector<std::string> joint_names = {"LBR_iiwa_14_R820_joint1",
+                                            "LBR_iiwa_14_R820_joint2",
+                                            "LBR_iiwa_14_R820_joint3",
+                                            "LBR_iiwa_14_R820_joint4",
+                                            "LBR_iiwa_14_R820_joint5",
+                                            "LBR_iiwa_14_R820_joint6",
+                                            "LBR_iiwa_14_R820_joint7"};
+
+    DQ_SerialManipulator robot = KukaLw4Robot::kinematics();
+
+    VectorXd theta_d(7);
+    theta_d << 0.,pi/2.,0.,pi/2.,0.,pi/2.,0.;
+    DQ xd = robot.fkm(theta_d);
+
+    VectorXd theta;
+
+    VectorXd e(8);
+    e(0)=1.0;
+
+    std::cout << "Starting control loop..." << std::endl;
+    while(e.norm()>0.05)
+    {
+        theta      = vi.get_joint_positions(joint_names);
+        DQ x       = robot.fkm(theta);
+        e          = vec8(x-xd);
+        MatrixXd J = robot.pose_jacobian(theta);
+
+        VectorXd u = -0.01*pinv(J)*e;
+        theta      = theta+u;
+        vi.set_joint_target_positions(joint_names,theta);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    std::cout << "Control finished..." << std::endl;
+
+    std::cout << "Stopping V-REP simulation..." << std::endl;
+    vi.stop_simulation();
+
+    vi.disconnect();
+
+    //} catch (...)
+    // {
+    //      std::cout << "There was an error connecting to V-REP, please check that it is open and that the Kuka Robot is in the scene." << std::endl;
+    //      vi.disconnect_all();
+    //   }
 
     return 0;
 }

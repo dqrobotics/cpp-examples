@@ -34,6 +34,7 @@ add_executable(${PROJECT_NAME}
     ../../cpp/src/robots/KukaLw4Robot.cpp
 
     ../../interfaces/cpp-interface-vrep/src/vrep_interface.cpp
+    ../../interfaces/cpp-interface-vrep/src/VrepInterfaceMapElement.cpp
     ../../interfaces/cpp-interface-vrep/coppeliarobotics/remoteApi/extApi.c
     ../../interfaces/cpp-interface-vrep/coppeliarobotics/remoteApi/extApiPlatform.h
     ../../interfaces/cpp-interface-vrep/coppeliarobotics/remoteApi/extApiPlatform.c
