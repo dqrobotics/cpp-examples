@@ -154,7 +154,6 @@ int main(void)
             VectorXd lbr4p_u = lbr4p_controller.compute_tracking_control_signal(lbr4p_q,
                                                                                 vec8(lbr4p_xd),
                                                                                 vec8(lbr4p_ff));
-            lbr4p_q = lbr4p_q + lbr4p_u*sampling_time;
 
             //Computer control signal for the youbot
             MatrixXd Jconstraint; VectorXd bconstraint;
@@ -167,6 +166,9 @@ int main(void)
                         youbot_q,
                         vec8(youbot_xd),
                         vec8(youbot_ff));
+
+
+            lbr4p_q = lbr4p_q + lbr4p_u*sampling_time;
             youbot_q = youbot_q + youbot_u*sampling_time;
 
 
