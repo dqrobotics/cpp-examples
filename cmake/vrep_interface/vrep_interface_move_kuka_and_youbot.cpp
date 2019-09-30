@@ -73,7 +73,7 @@ int main(void)
         simulation_parameters.move_manipulator = true;
         simulation_parameters.wd = 0.5;
         simulation_parameters.wn = 0.1;
-        simulation_parameters.total_time = 20.0;
+        simulation_parameters.total_time = 40.0;
         simulation_parameters.dispz = 0.1;
 
         if(!vi.connect(19998,100,5))
@@ -180,7 +180,7 @@ int main(void)
             lbr4p_vreprobot.send_q_to_vrep(lbr4p_q);
             youbot_vreprobot.send_q_to_vrep(youbot_q);
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(int(sampling_time*1000.0)));
+            //std::this_thread::sleep_for(std::chrono::milliseconds(int(sampling_time*1000.0)));
         }
 
 
