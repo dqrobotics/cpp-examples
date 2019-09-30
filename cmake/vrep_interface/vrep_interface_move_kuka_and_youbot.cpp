@@ -76,7 +76,10 @@ int main(void)
         simulation_parameters.total_time = 10.0;
         simulation_parameters.dispz = 0.1;
 
-        vi.connect(19997,100,10);
+        if(!vi.connect(19998,100,5))
+        {
+            throw std::runtime_error("Unable to connect to vrep!");
+        }
         std::cout << "Starting V-REP simulation..." << std::endl;
         vi.start_simulation();
 
@@ -92,6 +95,7 @@ int main(void)
         DQ_TaskSpacePseudoInverseController lbr4p_controller(&lbr4p);
         lbr4p_controller.set_control_objective(ControlObjective::Pose);
         lbr4p_controller.set_gain(5*MatrixXd::Identity(8,8));
+        lbr4p_controller.set_damping(0.0);
 
         DQ_CPLEXSolver solver;
         DQ_ClassicQPController youbot_controller(&youbot, &solver);
@@ -187,6 +191,8 @@ int main(void)
     {
         std::cout << "There was an error connecting to V-REP, please check that it is open and that the Kuka Robot is in the scene." << std::endl;
         std::cout << e.what() << std::endl;
+        vi.stop_simulation();
+        vi.disconnect();
         vi.disconnect_all();
     }
     catch(...)
