@@ -95,13 +95,13 @@ int main(void)
         //Initialize controllers
         DQ_TaskSpacePseudoInverseController lbr4p_controller(&lbr4p);
         lbr4p_controller.set_control_objective(ControlObjective::Pose);
-        lbr4p_controller.set_gain(5*MatrixXd::Identity(8,8));
+        lbr4p_controller.set_gain(5.0);
         lbr4p_controller.set_damping(0.0);
 
         DQ_CPLEXSolver solver;
         DQ_ClassicQPController youbot_controller(&youbot, &solver);
         youbot_controller.set_control_objective(ControlObjective::Pose);
-        youbot_controller.set_gain(5*MatrixXd::Identity(8,8));
+        youbot_controller.set_gain(5.0);
         youbot_controller.set_damping(0.01);
 
         //Control loop parameters and initial configuration
