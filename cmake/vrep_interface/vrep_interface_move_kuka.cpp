@@ -26,13 +26,13 @@ Contributors:
 
 #include <dqrobotics/DQ.h>
 #include <dqrobotics/robots/KukaLw4Robot.h>
-#include <dqrobotics/interfaces/vrep_interface.h>
+#include <dqrobotics/interfaces/vrep/DQ_VrepInterface.h>
 #include <dqrobotics/utils/DQ_LinearAlgebra.h>
 #include <dqrobotics/utils/DQ_Constants.h>
 
 int main(void)
 {
-    VrepInterface vi;
+    DQ_VrepInterface vi;
     try
     {
         vi.connect(19997,10,10);

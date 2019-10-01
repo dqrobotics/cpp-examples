@@ -30,6 +30,7 @@ include_directories(
 
 add_executable(vrep_interface_move_kuka
     vrep_interface_move_kuka.cpp
+
     ../../cpp/src/DQ.cpp
 
     ../../cpp/src/robot_modeling/DQ_Kinematics.cpp
@@ -39,8 +40,8 @@ add_executable(vrep_interface_move_kuka
 
     ../../cpp/src/robots/KukaLw4Robot.cpp
 
-    ../../interfaces/cpp-interface-vrep/src/vrep_interface.cpp
-    ../../interfaces/cpp-interface-vrep/src/VrepInterfaceMapElement.cpp
+    ../../interfaces/cpp-interface-vrep/src/DQ_VrepInterface.cpp
+    ../../interfaces/cpp-interface-vrep/src/DQ_VrepInterfaceMapElement.cpp
 
     ../../interfaces/cpp-interface-vrep/coppeliarobotics/remoteApi/extApi.c
     ../../interfaces/cpp-interface-vrep/coppeliarobotics/remoteApi/extApiPlatform.h
@@ -55,6 +56,7 @@ pthread
 
 add_executable(vrep_interface_move_kuka_and_youbot
     vrep_interface_move_kuka_and_youbot.cpp
+
     ../../cpp/src/DQ.cpp
 
     ../../cpp/src/robot_modeling/DQ_Kinematics.cpp
@@ -74,8 +76,8 @@ add_executable(vrep_interface_move_kuka_and_youbot
     ../../cpp/src/robot_control/DQ_TaskSpacePseudoInverseController.cpp
     ../../cpp/src/robot_control/DQ_TaskspaceQuadraticProgrammingController.cpp
 
-    ../../interfaces/cpp-interface-vrep/src/vrep_interface.cpp
-    ../../interfaces/cpp-interface-vrep/src/VrepInterfaceMapElement.cpp
+    ../../interfaces/cpp-interface-vrep/src/DQ_VrepInterface.cpp
+    ../../interfaces/cpp-interface-vrep/src/DQ_VrepInterfaceMapElement.cpp
     ../../interfaces/cpp-interface-vrep/src/DQ_VrepRobot.cpp
     ../../interfaces/cpp-interface-vrep/src/LBR4pVrepRobot.cpp
     ../../interfaces/cpp-interface-vrep/src/YouBotVrepRobot.cpp

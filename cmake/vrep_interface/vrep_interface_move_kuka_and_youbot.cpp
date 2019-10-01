@@ -28,11 +28,12 @@ Contributors:
 
 #include <dqrobotics/DQ.h>
 #include <dqrobotics/solvers/DQ_CPLEXSolver.h>
+#include <dqrobotics/robot_modeling/DQ_HolonomicBase.h>
 #include <dqrobotics/robot_control/DQ_TaskSpacePseudoInverseController.h>
 #include <dqrobotics/robot_control/DQ_ClassicQPController.h>
-#include <dqrobotics/interfaces/vrep_interface.h>
-#include <dqrobotics/interfaces/LBR4pVrepRobot.h>
-#include <dqrobotics/interfaces/YouBotVrepRobot.h>
+#include <dqrobotics/interfaces/vrep/DQ_VrepInterface.h>
+#include <dqrobotics/interfaces/vrep/robots/LBR4pVrepRobot.h>
+#include <dqrobotics/interfaces/vrep/robots/YouBotVrepRobot.h>
 #include <dqrobotics/utils/DQ_Geometry.h>
 #include <dqrobotics/utils/DQ_LinearAlgebra.h>
 #include <dqrobotics/utils/DQ_Constants.h>
@@ -46,11 +47,11 @@ struct SimulationParameters
     double dispz;
 };
 
-DQ get_plane_from_vrep(VrepInterface& vrep_interface,
+DQ get_plane_from_vrep(DQ_VrepInterface& vrep_interface,
                        const std::string& plane_name,
                        const DQ& normal);
 
-DQ get_line_from_vrep(VrepInterface& vrep_interface,
+DQ get_line_from_vrep(DQ_VrepInterface& vrep_interface,
                       const std::string& line_name,
                       const DQ& direction);
 
@@ -66,7 +67,7 @@ void computer_constraints(MatrixXd& Jconstraint, VectorXd& bconstraint,
 
 int main(void)
 {
-    VrepInterface vi;
+    DQ_VrepInterface vi;
     try
     {
         SimulationParameters simulation_parameters;
@@ -180,7 +181,7 @@ int main(void)
             lbr4p_vreprobot.send_q_to_vrep(lbr4p_q);
             youbot_vreprobot.send_q_to_vrep(youbot_q);
 
-            //std::this_thread::sleep_for(std::chrono::milliseconds(int(sampling_time*1000.0)));
+            std::this_thread::sleep_for(std::chrono::milliseconds(int(sampling_time*1000.0)));
         }
 
 
@@ -203,7 +204,7 @@ int main(void)
     return 0;
 }
 
-DQ get_plane_from_vrep(VrepInterface& vrep_interface, const std::string& plane_name, const DQ& normal)
+DQ get_plane_from_vrep(DQ_VrepInterface& vrep_interface, const std::string& plane_name, const DQ& normal)
 {
     DQ plane_object_pose = vrep_interface.get_object_pose(plane_name);
     DQ p = translation(plane_object_pose);
@@ -213,7 +214,7 @@ DQ get_plane_from_vrep(VrepInterface& vrep_interface, const std::string& plane_n
     return n + E_*d;
 }
 
-DQ get_line_from_vrep(VrepInterface& vrep_interface, const std::string& line_name, const DQ& direction)
+DQ get_line_from_vrep(DQ_VrepInterface& vrep_interface, const std::string& line_name, const DQ& direction)
 {
     DQ line_object_pose = vrep_interface.get_object_pose(line_name);
     DQ p = translation(line_object_pose);
