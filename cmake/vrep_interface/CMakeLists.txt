@@ -73,8 +73,8 @@ add_executable(vrep_interface_move_kuka_and_youbot
     ../../cpp/src/robot_control/DQ_ClassicQPController.cpp
     ../../cpp/src/robot_control/DQ_KinematicConstrainedController.cpp
     ../../cpp/src/robot_control/DQ_KinematicController.cpp
-    ../../cpp/src/robot_control/DQ_TaskSpacePseudoInverseController.cpp
-    ../../cpp/src/robot_control/DQ_TaskspaceQuadraticProgrammingController.cpp
+    ../../cpp/src/robot_control/DQ_PseudoinverseController.cpp
+    ../../cpp/src/robot_control/DQ_QuadraticProgrammingController.cpp
 
     ../../interfaces/cpp-interface-vrep/src/DQ_VrepInterface.cpp
     ../../interfaces/cpp-interface-vrep/src/DQ_VrepInterfaceMapElement.cpp

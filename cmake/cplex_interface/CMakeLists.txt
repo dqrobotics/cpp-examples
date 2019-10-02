@@ -17,26 +17,12 @@ link_directories(
     )
 
 include_directories(
-    ../../cpp/include
-    ../../solvers/cpp-interface-cplex/include
     ${CPLEX_PATH}/concert/include
     ${CPLEX_PATH}/cplex/include
     )
 
 add_executable(${PROJECT_NAME}
     ${PROJECT_NAME}.cpp
-    ../../cpp/src/DQ.cpp
-
-    ../../cpp/src/robot_modeling/DQ_Kinematics.cpp
-    ../../cpp/src/robot_modeling/DQ_SerialManipulator.cpp
-
-    ../../cpp/src/robot_control/DQ_ClassicQPController.cpp
-    ../../cpp/src/robot_control/DQ_TaskspaceQuadraticProgrammingController.cpp
-    ../../cpp/src/robot_control/DQ_KinematicConstrainedController.cpp
-    ../../cpp/src/robot_control/DQ_KinematicController.cpp
-
-    ../../cpp/src/robots/KukaLw4Robot.cpp
-
     )
 
 
@@ -45,4 +31,5 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME}
     ilocplex
     cplex
     concert
+    dqrobotics
     )

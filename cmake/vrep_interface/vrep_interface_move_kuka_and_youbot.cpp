@@ -29,7 +29,7 @@ Contributors:
 #include <dqrobotics/DQ.h>
 #include <dqrobotics/solvers/DQ_CPLEXSolver.h>
 #include <dqrobotics/robot_modeling/DQ_HolonomicBase.h>
-#include <dqrobotics/robot_control/DQ_TaskSpacePseudoInverseController.h>
+#include <dqrobotics/robot_control/DQ_PseudoinverseController.h>
 #include <dqrobotics/robot_control/DQ_ClassicQPController.h>
 #include <dqrobotics/interfaces/vrep/DQ_VrepInterface.h>
 #include <dqrobotics/interfaces/vrep/robots/LBR4pVrepRobot.h>
@@ -93,7 +93,7 @@ int main(void)
         DQ_WholeBody youbot = youbot_vreprobot.kinematics();
 
         //Initialize controllers
-        DQ_TaskSpacePseudoInverseController lbr4p_controller(&lbr4p);
+        DQ_PseudoinverseController lbr4p_controller(&lbr4p);
         lbr4p_controller.set_control_objective(ControlObjective::Pose);
         lbr4p_controller.set_gain(5.0);
         lbr4p_controller.set_damping(0.0);

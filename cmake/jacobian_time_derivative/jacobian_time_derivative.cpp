@@ -46,9 +46,9 @@ int main()
         //This is the analytical time derivative of the joint trajectories.
         VectorXd theta_dot = T*cos(t)*VectorXd::Ones(7);
         //Calculation of the analytical Jacobian time derivative.
-        MatrixXd jacob_dot = kuka.pose_jacobian_derivative(theta,theta_dot,7);
+        MatrixXd jacob_dot = kuka.pose_jacobian_derivative(theta,theta_dot,6);
         //First-order numerical approximation of the Jacobian time derivative
-        MatrixXd jacob_diff = (1.0/T)*(kuka.raw_pose_jacobian(theta+theta_dot*T,7)-kuka.raw_pose_jacobian(theta,7));
+        MatrixXd jacob_diff = (1.0/T)*(kuka.raw_pose_jacobian(theta+theta_dot*T,6)-kuka.raw_pose_jacobian(theta,6));
 
         std::cout << "Coefficient with largest error = " << jacob_diff.maxCoeff() << std::endl;
     }

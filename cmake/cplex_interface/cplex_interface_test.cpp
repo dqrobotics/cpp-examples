@@ -37,7 +37,7 @@ int main(void)
 
     DQ_ClassicQPController classic_qp_controller(&robot,&cplex_solver);
     classic_qp_controller.set_control_objective(ControlObjective::Pose);
-    classic_qp_controller.set_gain(MatrixXd::Identity(7,7)*0.01);
+    classic_qp_controller.set_gain(0.01);
     classic_qp_controller.set_damping(0.01);
 
     VectorXd theta_init(7);

@@ -26,7 +26,7 @@ Contributors:
 #include <chrono>
 
 #include <dqrobotics/robots/KukaLw4Robot.h>
-#include <dqrobotics/robot_control/DQ_TaskSpacePseudoInverseController.h>
+#include <dqrobotics/robot_control/DQ_PseudoinverseController.h>
 
 using namespace DQ_robotics;
 int main()
@@ -156,10 +156,10 @@ int main()
 
     DQ xd;
     VectorXd theta_d;
-    DQ_TaskSpacePseudoInverseController taskspace_pseudoinverse_controller(&robot);
-    taskspace_pseudoinverse_controller.set_gain(MatrixXd::Identity(8,8)*0.1);
-    taskspace_pseudoinverse_controller.set_damping(0.001);
-    taskspace_pseudoinverse_controller.set_control_objective(ControlObjective::Pose);
+    DQ_PseudoinverseController pseudoinverse_controller(&robot);
+    pseudoinverse_controller.set_gain(0.1);
+    pseudoinverse_controller.set_damping(0.001);
+    pseudoinverse_controller.set_control_objective(ControlObjective::Pose);
     start = std::chrono::system_clock::now();
     for(int i=0;i<RUN_COUNT;i++)
     {
@@ -169,7 +169,7 @@ int main()
         theta                = VectorXd::Random(7);
 
         //Create random plane
-        taskspace_pseudoinverse_controller.compute_setpoint_control_signal(theta,vec8(xd));
+        pseudoinverse_controller.compute_setpoint_control_signal(theta,vec8(xd));
     }
     end = std::chrono::system_clock::now();
     diff = end-start;
