@@ -257,9 +257,9 @@ void computer_constraints(MatrixXd& Jconstraint, VectorXd& bconstraint,
     double radius_cylinder1 = 0.1;
     double radius_cylinder2 = 0.1;
 
-    DQ_HolonomicBase* youbot_base = dynamic_cast<DQ_HolonomicBase*>(youbot.get_chain(0));
-    DQ youbot_base_pose = youbot_base->raw_fkm(youbot_q);
-    MatrixXd Jx = youbot_base->raw_pose_jacobian(youbot_q);
+    DQ_HolonomicBase youbot_base = youbot.get_chain_as_holonomic_base(0);
+    DQ youbot_base_pose = youbot_base.raw_fkm(youbot_q);
+    MatrixXd Jx = youbot_base.raw_pose_jacobian(youbot_q);
     DQ t = translation(youbot_base_pose);
     MatrixXd base_Jt = youbot.translation_jacobian(Jx,youbot_base_pose);
     MatrixXd Jt(4,8);
