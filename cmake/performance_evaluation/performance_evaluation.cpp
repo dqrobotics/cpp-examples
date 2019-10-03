@@ -24,6 +24,7 @@ Contributors:
 #include <dqrobotics/DQ.h>
 #include <cmath>
 #include <chrono>
+#include <vector>
 
 #include <dqrobotics/robots/KukaLw4Robot.h>
 #include <dqrobotics/robot_control/DQ_PseudoinverseController.h>
@@ -33,35 +34,35 @@ int main()
 {
     const int RUN_COUNT = 1000000;
 
+    //Initialize vectors with random values
+    std::vector<DQ> random_dq_a(RUN_COUNT);
+    std::vector<DQ> random_dq_b(RUN_COUNT);
+    std::vector<VectorXd> random_theta(RUN_COUNT);
+
+    for(int i=0;i<RUN_COUNT;i++)
+    {
+        random_dq_a[i] = DQ(VectorXd::Random(8));
+        random_dq_b[i] = DQ(VectorXd::Random(8));
+        random_theta[i] = VectorXd::Random(7);
+    }
+
     DQ_SerialManipulator robot = KukaLw4Robot::kinematics();
 
-    VectorXd theta;
+    MatrixXd pose_jacobian;
     auto start = std::chrono::system_clock::now();
     for(int i=0;i<RUN_COUNT;i++)
     {
-        theta = VectorXd::Random(7);
+        pose_jacobian = robot.pose_jacobian(random_theta[i]);
     }
     auto end = std::chrono::system_clock::now();
     std::chrono::duration<double> diff = end-start;
-    std::cout << "Time to calculate a " << theta.size() << " DOF random vector " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
-
-    MatrixXd pose_jacobian;
-    start = std::chrono::system_clock::now();
-    for(int i=0;i<RUN_COUNT;i++)
-    {
-        theta = VectorXd::Random(7);
-        pose_jacobian = robot.pose_jacobian(theta);
-    }
-    end = std::chrono::system_clock::now();
-    diff = end-start;
     std::cout << "Time to calculate a " << pose_jacobian.cols() << " DOF Jacobian " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
 
     DQ pose;
     start = std::chrono::system_clock::now();
     for(int i=0;i<RUN_COUNT;i++)
     {
-        theta = VectorXd::Random(7);
-        pose  = robot.fkm(theta);
+        pose  = robot.fkm(random_theta[i]);
     }
     end = std::chrono::system_clock::now();
     diff = end-start;
@@ -71,9 +72,8 @@ int main()
     start = std::chrono::system_clock::now();
     for(int i=0;i<RUN_COUNT;i++)
     {
-        theta                = VectorXd::Random(7);
-        pose                 = robot.fkm(theta);
-        pose_jacobian        = robot.pose_jacobian(theta);
+        pose                 = robot.fkm(random_theta[i]);
+        pose_jacobian        = robot.pose_jacobian(random_theta[i]);
         translation_jacobian = DQ_Kinematics::translation_jacobian(pose_jacobian,pose);
     }
     end = std::chrono::system_clock::now();
@@ -84,8 +84,7 @@ int main()
     start = std::chrono::system_clock::now();
     for(int i=0;i<RUN_COUNT;i++)
     {
-        theta             = VectorXd::Random(7);
-        pose_jacobian     = robot.pose_jacobian(theta);
+        pose_jacobian     = robot.pose_jacobian(random_theta[i]);
         rotation_jacobian = DQ_Kinematics::rotation_jacobian(pose_jacobian);
     }
     end = std::chrono::system_clock::now();
@@ -97,9 +96,8 @@ int main()
     start = std::chrono::system_clock::now();
     for(int i=0;i<RUN_COUNT;i++)
     {
-        theta                = VectorXd::Random(7);
-        pose_jacobian        = robot.pose_jacobian(theta);
-        pose                 = robot.fkm(theta);
+        pose_jacobian        = robot.pose_jacobian(random_theta[i]);
+        pose                 = robot.fkm(random_theta[i]);
         translation_jacobian = DQ_Kinematics::translation_jacobian(pose_jacobian,pose);
         point                = DQ(VectorXd::Random(8));
         point                = normalize(point);
@@ -115,9 +113,8 @@ int main()
     start = std::chrono::system_clock::now();
     for(int i=0;i<RUN_COUNT;i++)
     {
-        theta                = VectorXd::Random(7);
-        pose_jacobian        = robot.pose_jacobian(theta);
-        pose                 = robot.fkm(theta);
+        pose_jacobian        = robot.pose_jacobian(random_theta[i]);
+        pose                 = robot.fkm(random_theta[i]);
         translation_jacobian = DQ_Kinematics::translation_jacobian(pose_jacobian,pose);
         //Create random plucker line
         DQ l = DQ(VectorXd::Random(4));
@@ -138,9 +135,8 @@ int main()
     start = std::chrono::system_clock::now();
     for(int i=0;i<RUN_COUNT;i++)
     {
-        theta                = VectorXd::Random(7);
-        pose_jacobian        = robot.pose_jacobian(theta);
-        pose                 = robot.fkm(theta);
+        pose_jacobian        = robot.pose_jacobian(random_theta[i]);
+        pose                 = robot.fkm(random_theta[i]);
         translation_jacobian = DQ_Kinematics::translation_jacobian(pose_jacobian,pose);
         //Create random plane
         DQ n = DQ(VectorXd::Random(4));
@@ -164,36 +160,21 @@ int main()
     for(int i=0;i<RUN_COUNT;i++)
     {
         //Assign random xd
-        theta_d              = VectorXd::Random(7);
+        theta_d              = random_theta[i];
         xd = robot.fkm(theta_d);
-        theta                = VectorXd::Random(7);
 
         //Create random plane
-        pseudoinverse_controller.compute_setpoint_control_signal(theta,vec8(xd));
+        pseudoinverse_controller.compute_setpoint_control_signal(random_theta[RUN_COUNT-i-1],vec8(xd));
     }
     end = std::chrono::system_clock::now();
     diff = end-start;
     std::cout << "Time to calculate the control signal of a " << robot.get_dim_configuration_space() << " DOF robot using the SVD pseudo-inverse (including requirements) " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
 
-    DQ a;
-    DQ b;
-    start = std::chrono::system_clock::now();
-    for(int i=0;i<RUN_COUNT;i++)
-    {
-        a = DQ(VectorXd::Random(8));
-        b = DQ(VectorXd::Random(8));
-    }
-    end = std::chrono::system_clock::now();
-    diff = end-start;
-    std::cout << "Time to create two dual quaternions from a random VectorXd " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
-
     DQ c;
     start = std::chrono::system_clock::now();
     for(int i=0;i<RUN_COUNT;i++)
     {
-        a = DQ(VectorXd::Random(8));
-        b = DQ(VectorXd::Random(8));
-        c = a*b;
+        c = random_dq_a[i]*random_dq_b[i];
     }
     end = std::chrono::system_clock::now();
     diff = end-start;
@@ -202,14 +183,11 @@ int main()
     start = std::chrono::system_clock::now();
     for(int i=0;i<RUN_COUNT;i++)
     {
-        a = DQ(VectorXd::Random(8));
-        b = DQ(VectorXd::Random(8));
-        c = a+b;
+        c = random_dq_a[i]+random_dq_b[i];
     }
     end = std::chrono::system_clock::now();
     diff = end-start;
     std::cout << "Time to calculate the dual quaternion sum " << RUN_COUNT << " times was " << diff.count() << " s. Or per time [s]: " << diff.count()/double(RUN_COUNT) << std::endl;
-
 
     return 0;
 }

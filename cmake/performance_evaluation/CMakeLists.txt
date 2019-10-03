@@ -11,3 +11,9 @@ add_executable(${PROJECT_NAME}
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}
     dqrobotics
     )
+
+
+# Multiplication evaluation
+add_executable(multiplication_evaluation  multiplication_evaluation.cpp)
+
+target_link_libraries(multiplication_evaluation dqrobotics)
