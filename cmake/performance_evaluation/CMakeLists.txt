@@ -4,13 +4,13 @@ project(performance_evaluation)
 set (CMAKE_CXX_STANDARD 11)
 
 include_directories(../../cpp/include)
-add_executable(${PROJECT_NAME}
-    performance_evaluation.cpp
-    )
+#add_executable(${PROJECT_NAME}
+#    performance_evaluation.cpp
+#    )
 
-TARGET_LINK_LIBRARIES(${PROJECT_NAME}
-    dqrobotics
-    )
+#TARGET_LINK_LIBRARIES(${PROJECT_NAME}
+#    dqrobotics
+#    )
 
 
 # Multiplication evaluation
