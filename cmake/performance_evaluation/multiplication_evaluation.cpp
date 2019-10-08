@@ -33,7 +33,7 @@ double get_variance(const std::vector<double>&);
 
 int main(void)
 {
-    const int RUN_COUNT = 1000000;
+    const int RUN_COUNT = 10000000;
 
     //Initialize vectors with random values
     std::vector<DQ> random_dq_a(RUN_COUNT);
@@ -47,6 +47,7 @@ int main(void)
         random_dq_b[i] = DQ(VectorXd::Random(8));
     }
 
+    auto whole_loop_start  = std::chrono::system_clock::now();
     for(unsigned int i=0;i<RUN_COUNT;i++)
     {
         auto start = std::chrono::system_clock::now();
@@ -55,9 +56,13 @@ int main(void)
         std::chrono::duration<double> diff = end-start;
         required_time[i]=diff.count()/double(RUN_COUNT);
     }
+    auto whole_loop_end = std::chrono::system_clock::now();
+    std::chrono::duration<double> whole_loop_diff = whole_loop_end-whole_loop_start;
 
-    std::cout << "Average is: " << get_average(required_time) << std::endl;
-    std::cout << "Variance is: " << get_variance(required_time) << std::endl;
+    std::cout << "Average is: " << get_average(required_time)*1e6 << " us" << std::endl;
+    std::cout << "Variance is: " << get_variance(required_time)*1e6 << " us" << std::endl;
+    std::cout << "Whole loop average is: " << whole_loop_diff.count()*1e6/(double(RUN_COUNT)) << "us" << std::endl;
+
 
     return 0;
 }

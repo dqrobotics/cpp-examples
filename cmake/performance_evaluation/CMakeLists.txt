@@ -15,5 +15,5 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME}
 
 # Multiplication evaluation
 add_executable(multiplication_evaluation  multiplication_evaluation.cpp)
-
+target_compile_options(multiplication_evaluation PRIVATE -funroll-all-loops)
 target_link_libraries(multiplication_evaluation dqrobotics)
