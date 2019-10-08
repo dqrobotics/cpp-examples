@@ -40,8 +40,8 @@ add_executable(vrep_interface_move_kuka
 
     ../../cpp/src/robots/KukaLw4Robot.cpp
 
-    ../../interfaces/cpp-interface-vrep/src/DQ_VrepInterface.cpp
-    ../../interfaces/cpp-interface-vrep/src/DQ_VrepInterfaceMapElement.cpp
+    ../../interfaces/cpp-interface-vrep/src/dqrobotics/interfaces/vrep/DQ_VrepInterface.cpp
+    ../../interfaces/cpp-interface-vrep/src/dqrobotics/interfaces/vrep/DQ_VrepInterfaceMapElement.cpp
 
     ../../interfaces/cpp-interface-vrep/coppeliarobotics/remoteApi/extApi.c
     ../../interfaces/cpp-interface-vrep/coppeliarobotics/remoteApi/extApiPlatform.h
@@ -76,11 +76,11 @@ add_executable(vrep_interface_move_kuka_and_youbot
     ../../cpp/src/robot_control/DQ_PseudoinverseController.cpp
     ../../cpp/src/robot_control/DQ_QuadraticProgrammingController.cpp
 
-    ../../interfaces/cpp-interface-vrep/src/DQ_VrepInterface.cpp
-    ../../interfaces/cpp-interface-vrep/src/DQ_VrepInterfaceMapElement.cpp
-    ../../interfaces/cpp-interface-vrep/src/DQ_VrepRobot.cpp
-    ../../interfaces/cpp-interface-vrep/src/LBR4pVrepRobot.cpp
-    ../../interfaces/cpp-interface-vrep/src/YouBotVrepRobot.cpp
+    ../../interfaces/cpp-interface-vrep/src/dqrobotics/interfaces/vrep/DQ_VrepInterface.cpp
+    ../../interfaces/cpp-interface-vrep/src/dqrobotics/interfaces/vrep/DQ_VrepInterfaceMapElement.cpp
+    ../../interfaces/cpp-interface-vrep/src/dqrobotics/interfaces/vrep/DQ_VrepRobot.cpp
+    ../../interfaces/cpp-interface-vrep/src/dqrobotics/interfaces/vrep/robots/LBR4pVrepRobot.cpp
+    ../../interfaces/cpp-interface-vrep/src/dqrobotics/interfaces/vrep/robots/YouBotVrepRobot.cpp
 
     ../../interfaces/cpp-interface-vrep/coppeliarobotics/remoteApi/extApi.c
     ../../interfaces/cpp-interface-vrep/coppeliarobotics/remoteApi/extApiPlatform.h
