@@ -21,43 +21,79 @@ Contributors:
 */
 
 #include<iostream>
+#include<iomanip>
+#include<sstream>
+#include<fstream>
 #include<vector>
 #include<chrono>
 
 #include <dqrobotics/DQ.h>
 
+
 using namespace DQ_robotics;
+
+const int NUMBER_OF_RANDOM = 1000;
+const int NUMBER_OF_RUNS = 1000;
+
+template <typename T>
+std::string to_string_with_precision(const T a_value, const int n = 12)
+{
+    std::ostringstream out;
+    out.precision(n);
+    out << std::fixed << a_value;
+    return out.str();
+}
 
 double get_average(const std::vector<double>&);
 double get_variance(const std::vector<double>&);
 
 int main(void)
 {
-    const int RUN_COUNT = 1000000;
+    std::vector<double> required_time;
+    std::vector<double> variance(NUMBER_OF_RUNS);
 
-    //Initialize vectors with random values
-    std::vector<DQ> random_dq_a(RUN_COUNT);
-    std::vector<DQ> random_dq_b(RUN_COUNT);
-    std::vector<DQ> result_dq_c(RUN_COUNT);
-    std::vector<double> required_time(RUN_COUNT);
+    std::ofstream time_out;
+    time_out.precision(12);
+    std::ofstream variance_out;
+    variance_out.precision(12);
 
-    for(unsigned int i=0;i<RUN_COUNT;i++)
-    {
-        random_dq_a[i] = DQ(VectorXd::Random(8));
-        random_dq_b[i] = DQ(VectorXd::Random(8));
-    }
+    time_out.open("time_out.csv");
+    variance_out.open("variance_out.csv");
 
-    for(unsigned int i=0;i<RUN_COUNT;i++)
-    {
+    for (int j = 0; j < NUMBER_OF_RUNS; j++) {
+
+        //Initialize vectors with random values
+        std::vector<DQ> random_dq_a(NUMBER_OF_RANDOM);
+        std::vector<DQ> random_dq_b(NUMBER_OF_RANDOM);
+        std::vector<DQ> result_dq_c(NUMBER_OF_RANDOM);
+
+
+        for(unsigned int i=0;i<NUMBER_OF_RANDOM;i++)
+        {
+            random_dq_a[i] = DQ(VectorXd::Random(8));
+            random_dq_b[i] = DQ(VectorXd::Random(8));
+        }
+
         auto start = std::chrono::system_clock::now();
-        result_dq_c[i] = random_dq_a[i]*random_dq_b[i];
+        for(unsigned int i=0;i<NUMBER_OF_RANDOM;i++)
+        {
+            result_dq_c[i] = random_dq_a[i]*random_dq_b[i];
+        }
         auto end = std::chrono::system_clock::now();
         std::chrono::duration<double> diff = end-start;
-        required_time[i]=diff.count()/double(RUN_COUNT);
+
+        required_time.push_back(diff.count()*double(1000.0));
+        variance[j] = get_variance(required_time);
+
+        time_out << std::fixed << to_string_with_precision<double>(required_time[j]) << std::endl;
+        variance_out << std::fixed << to_string_with_precision<double>(variance[j]) << std::endl;
     }
 
     std::cout << "Average is: " << get_average(required_time) << std::endl;
     std::cout << "Variance is: " << get_variance(required_time) << std::endl;
+
+    time_out.close();
+    variance_out.close();
 
     return 0;
 }
