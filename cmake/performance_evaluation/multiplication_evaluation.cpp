@@ -67,7 +67,6 @@ int main(void)
         std::vector<DQ> random_dq_b(NUMBER_OF_RANDOM);
         std::vector<DQ> result_dq_c(NUMBER_OF_RANDOM);
 
-
         for(unsigned int i=0;i<NUMBER_OF_RANDOM;i++)
         {
             random_dq_a[i] = DQ(VectorXd::Random(8));
@@ -88,9 +87,6 @@ int main(void)
         time_out << std::fixed << to_string_with_precision<double>(required_time[j]) << std::endl;
         variance_out << std::fixed << to_string_with_precision<double>(variance[j]) << std::endl;
     }
-
-    std::cout << "Average is: " << get_average(required_time) << std::endl;
-    std::cout << "Variance is: " << get_variance(required_time) << std::endl;
 
     time_out.close();
     variance_out.close();
