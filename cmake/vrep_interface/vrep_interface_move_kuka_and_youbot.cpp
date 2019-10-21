@@ -1,4 +1,4 @@
-/**
+﻿/**
 (C) Copyright 2019 DQ Robotics Developers
 
 This file is part of DQ Robotics.
@@ -41,10 +41,13 @@ Contributors:
 struct SimulationParameters
 {
     bool move_manipulator;
+    bool first_iteration;
     double wd;
     double wn;
     double total_time;
     double dispz;
+    double tc;
+    DQ rcircle;
 };
 
 DQ get_plane_from_vrep(DQ_VrepInterface& vrep_interface,
@@ -55,11 +58,22 @@ DQ get_line_from_vrep(DQ_VrepInterface& vrep_interface,
                       const std::string& line_name,
                       const DQ& direction);
 
-void compute_reference(DQ& xd, DQ& xd_dot,
-                       const SimulationParameters& simulation_parameters, const DQ& x0, const double &t);
+void compute_lbr4p_reference(DQ& xd,
+                             DQ& xd_dot,
+                             const DQ_SerialManipulator& lbr4p,
+                             const SimulationParameters& simulation_parameters,
+                             const DQ& x0,
+                             const double &t);
 
-void computer_constraints(MatrixXd& Jconstraint, VectorXd& bconstraint,
+void compute_youbot_reference(DQ &youbot_xd, DQ &youbot_ff, SimulationParameters& simulation_parameters,
+                              const DQ_ClassicQPController& controller,
+                              const DQ& lbr4p_xd,
+                              const DQ& lbr4p_ff);
+
+void compute_constraints(MatrixXd& Jconstraint,
+                          VectorXd& bconstraint,
                           DQ_WholeBody& youbot,
+
                           const VectorXd& youbot_q,
                           const DQ& plane,
                           const DQ& cylinder1,
@@ -71,6 +85,9 @@ int main(void)
     try
     {
         SimulationParameters simulation_parameters;
+        simulation_parameters.first_iteration = true;
+        simulation_parameters.tc = 0;
+        simulation_parameters.rcircle = DQ(1);
         simulation_parameters.move_manipulator = true;
         simulation_parameters.wd = 0.5;
         simulation_parameters.wn = 0.1;
@@ -95,20 +112,16 @@ int main(void)
         //Initialize controllers
         DQ_PseudoinverseController lbr4p_controller(&lbr4p);
         lbr4p_controller.set_control_objective(ControlObjective::Pose);
-        lbr4p_controller.set_gain(5.0);
-        lbr4p_controller.set_damping(0.0);
+        lbr4p_controller.set_gain(10.0);
 
         DQ_CPLEXSolver solver;
         DQ_ClassicQPController youbot_controller(&youbot, &solver);
         youbot_controller.set_control_objective(ControlObjective::Pose);
-        youbot_controller.set_gain(5.0);
+        youbot_controller.set_gain(10.0);
         youbot_controller.set_damping(0.01);
 
         //Control loop parameters and initial configuration
-        double sampling_time = 0.1;
-        double tc = 0.0;
-        DQ tcircle = 1 + E_ * 0.5 * 0.1 * j_;
-        DQ rcircle = DQ(1);
+        double sampling_time = 0.05;
 
         //Get initial robot information
         VectorXd lbr4p_q(7); lbr4p_q << 0, 1.7453e-01, 0, 1.5708, 0, 2.6273e-01, 0;
@@ -117,14 +130,11 @@ int main(void)
         VectorXd youbot_q = youbot_vreprobot.get_q_from_vrep();
 
         DQ lbr4p_xd;
-        DQ lbr4p_xd_wrt_base;
         DQ lbr4p_ff;
-        DQ lbr4p_ff_wrt_base;
 
         DQ youbot_xd;
         DQ youbot_ff;
 
-        bool first_iteration = true;
         for(double t=0;t<simulation_parameters.total_time;t+=sampling_time)
         {
             //Get Obstacles from VREP
@@ -132,28 +142,12 @@ int main(void)
             DQ cylinder1 = get_line_from_vrep(vi, "ObstacleCylinder1", k_);
             DQ cylinder2 = get_line_from_vrep(vi, "ObstacleCylinder2", k_);
 
-            //Set LBR4p reference
-            compute_reference(lbr4p_xd_wrt_base, lbr4p_ff_wrt_base,
-                              simulation_parameters, lbr4p_x0, t);
-            lbr4p_xd = lbr4p.reference_frame()*lbr4p_xd_wrt_base;
-            lbr4p_ff = lbr4p.reference_frame()*lbr4p_ff_wrt_base;
+            // Set reference for the manipulator and the mobile manipulator
+            compute_lbr4p_reference(lbr4p_xd, lbr4p_ff,
+                                    lbr4p, simulation_parameters, lbr4p_x0, t);
 
-            //YouBot Trajectory
-            youbot_xd = lbr4p_xd * (1 + 0.5*E_*0.015*k_) * j_;
-            youbot_ff = lbr4p_ff * (1 + 0.5*E_*0.015*k_) * j_;
-            // Modify the trajectory in order to draw a circle, but we do it
-            // only if the whiteboard pen tip is on the whiteboard surface.
-            if(first_iteration)
-            {
-                first_iteration = false;
-            }
-            else if(youbot_controller.get_last_error_signal().norm() < 0.025)
-            {
-                tc = tc + 0.01;
-                rcircle = cos(tc/2) + k_ * sin(tc/2);
-            }
-            youbot_xd = youbot_xd * rcircle * tcircle;
-            youbot_ff = youbot_ff * rcircle * tcircle;
+            compute_youbot_reference(youbot_xd, youbot_ff,
+                                     simulation_parameters, youbot_controller, lbr4p_xd, lbr4p_ff);
 
             //Compute control signal for the arm
             VectorXd lbr4p_u = lbr4p_controller.compute_tracking_control_signal(lbr4p_q,
@@ -162,7 +156,7 @@ int main(void)
 
             //Computer control signal for the youbot
             MatrixXd Jconstraint; VectorXd bconstraint;
-            computer_constraints(Jconstraint, bconstraint,
+            compute_constraints(Jconstraint, bconstraint,
                                  youbot, youbot_q,
                                  plane, cylinder1, cylinder2);
             youbot_controller.set_inequality_constraint(-Jconstraint,1*bconstraint);
@@ -224,7 +218,7 @@ DQ get_line_from_vrep(DQ_VrepInterface& vrep_interface, const std::string& line_
     return l + E_*m;
 }
 
-void compute_reference(DQ& xd, DQ& xd_dot, const SimulationParameters& simulation_parameters, const DQ& x0, const double& t)
+void compute_lbr4p_reference(DQ& xd, DQ& xd_dot, const DQ_SerialManipulator& lbr4p, const SimulationParameters& simulation_parameters, const DQ& x0, const double& t)
 {
     const double& dispz = simulation_parameters.dispz;
     const double& wd = simulation_parameters.wd;
@@ -244,9 +238,46 @@ void compute_reference(DQ& xd, DQ& xd_dot, const SimulationParameters& simulatio
     DQ rdot = 0.5*(-sin(phi/2.0) + k_*cos(phi/2.0))*phidot;
     DQ pdot = -E_*0.5*dispz*wd*sin(wd*t)*k_;
     xd_dot = rdot*x0*p + r*x0*pdot;
+
+    // The trajectory,including the feedforward term, has been calculated with
+    // respect to the manipulator base. Therefore, we need to calculate them
+    // with respect to the global reference frame.
+    xd = lbr4p.reference_frame()*xd;
+    xd_dot = lbr4p.reference_frame()*xd_dot;
 }
 
-void computer_constraints(MatrixXd& Jconstraint, VectorXd& bconstraint,
+void compute_youbot_reference(DQ& youbot_xd,
+                              DQ& youbot_ff,
+                              SimulationParameters& simulation_parameters,
+                              const DQ_ClassicQPController& controller,
+                              const DQ& lbr4p_xd,
+                              const DQ& lbr4p_ff)
+{
+    const double circle_radius = 0.1;
+    const DQ tcircle = 1 + E_ * 0.5 * circle_radius * j_;
+
+    // Youbot trajectory
+    // Those are the trajectory components to track the whiteboard
+    youbot_xd = lbr4p_xd * (1 + 0.5*E_*0.015*k_) * j_;
+    youbot_ff = lbr4p_ff * (1 + 0.5*E_*0.015*k_) * j_;
+    // Now we modify the trajectory in order to draw a circle, but we do it
+    // only if the whiteboard pen tip is on the whiteboard surface.
+    if(simulation_parameters.first_iteration)
+    {
+        simulation_parameters.first_iteration = false;
+        simulation_parameters.tc = 0;
+        simulation_parameters.rcircle = DQ(1);
+    }
+    else if(controller.get_last_error_signal().norm() < 0.002)
+    {
+        simulation_parameters.tc += 0.1; // Increment around 0.5 deg.
+        simulation_parameters.rcircle = cos(simulation_parameters.tc/2.0) + k_ * sin(simulation_parameters.tc/2.0);
+    }
+    youbot_xd = youbot_xd * simulation_parameters.rcircle * tcircle;
+    youbot_ff = youbot_ff * simulation_parameters.rcircle * tcircle;
+}
+
+void compute_constraints(MatrixXd& Jconstraint, VectorXd& bconstraint,
                           DQ_WholeBody& youbot,
                           const VectorXd& youbot_q,
                           const DQ& plane,
