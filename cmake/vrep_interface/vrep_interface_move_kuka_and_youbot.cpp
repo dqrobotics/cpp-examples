@@ -25,6 +25,7 @@ Contributors:
 #include <string>
 #include <thread>
 #include <chrono>
+#include <tuple>
 
 #include <dqrobotics/DQ.h>
 #include <dqrobotics/solvers/DQ_CPLEXSolver.h>
@@ -58,26 +59,18 @@ DQ get_line_from_vrep(DQ_VrepInterface& vrep_interface,
                       const std::string& line_name,
                       const DQ& direction);
 
-void compute_lbr4p_reference(DQ& xd,
-                             DQ& xd_dot,
+std::tuple<DQ, DQ> compute_lbr4p_reference(
                              const DQ_SerialManipulator& lbr4p,
                              const SimulationParameters& simulation_parameters,
                              const DQ& x0,
                              const double &t);
 
-void compute_youbot_reference(DQ &youbot_xd, DQ &youbot_ff, SimulationParameters& simulation_parameters,
+std::tuple<DQ, DQ> compute_youbot_reference(SimulationParameters& simulation_parameters,
                               const DQ_ClassicQPController& controller,
                               const DQ& lbr4p_xd,
                               const DQ& lbr4p_ff);
 
-void compute_constraints(MatrixXd& Jconstraint,
-                          VectorXd& bconstraint,
-                          DQ_WholeBody& youbot,
-
-                          const VectorXd& youbot_q,
-                          const DQ& plane,
-                          const DQ& cylinder1,
-                          const DQ& cylinder2);
+std::tuple<MatrixXd, VectorXd> compute_constraints(DQ_WholeBody& youbot, const VectorXd& youbot_q, const DQ& plane, const DQ& cylinder1, const DQ& cylinder2);
 
 int main(void)
 {
@@ -113,6 +106,7 @@ int main(void)
         DQ_PseudoinverseController lbr4p_controller(&lbr4p);
         lbr4p_controller.set_control_objective(ControlObjective::Pose);
         lbr4p_controller.set_gain(10.0);
+        lbr4p_controller.set_damping(0.01);
 
         DQ_CPLEXSolver solver;
         DQ_ClassicQPController youbot_controller(&youbot, &solver);
@@ -129,11 +123,13 @@ int main(void)
         DQ lbr4p_x0 = conj(lbr4p.get_reference_frame())*lbr4p.fkm(lbr4p_q);
         VectorXd youbot_q = youbot_vreprobot.get_q_from_vrep();
 
+        //Used in loop
         DQ lbr4p_xd;
         DQ lbr4p_ff;
-
         DQ youbot_xd;
         DQ youbot_ff;
+        MatrixXd Jconstraint;
+        VectorXd bconstraint;
 
         for(double t=0;t<simulation_parameters.total_time;t+=sampling_time)
         {
@@ -143,33 +139,20 @@ int main(void)
             DQ cylinder2 = get_line_from_vrep(vi, "ObstacleCylinder2", k_);
 
             // Set reference for the manipulator and the mobile manipulator
-            compute_lbr4p_reference(lbr4p_xd, lbr4p_ff,
-                                    lbr4p, simulation_parameters, lbr4p_x0, t);
+            std::tie(lbr4p_xd, lbr4p_ff) = compute_lbr4p_reference(lbr4p, simulation_parameters, lbr4p_x0, t);
 
-            compute_youbot_reference(youbot_xd, youbot_ff,
-                                     simulation_parameters, youbot_controller, lbr4p_xd, lbr4p_ff);
+            std::tie(youbot_xd, youbot_ff) = compute_youbot_reference(simulation_parameters, youbot_controller, lbr4p_xd, lbr4p_ff);
 
             //Compute control signal for the arm
-            VectorXd lbr4p_u = lbr4p_controller.compute_tracking_control_signal(lbr4p_q,
-                                                                                vec8(lbr4p_xd),
-                                                                                vec8(lbr4p_ff));
+            VectorXd lbr4p_u = lbr4p_controller.compute_tracking_control_signal(lbr4p_q, vec8(lbr4p_xd), vec8(lbr4p_ff));
 
             //Computer control signal for the youbot
-            MatrixXd Jconstraint; VectorXd bconstraint;
-            compute_constraints(Jconstraint, bconstraint,
-                                 youbot, youbot_q,
-                                 plane, cylinder1, cylinder2);
+            std::tie(Jconstraint, bconstraint) = compute_constraints(youbot, youbot_q, plane, cylinder1, cylinder2);
             youbot_controller.set_inequality_constraint(-Jconstraint,1*bconstraint);
-
-            VectorXd youbot_u = youbot_controller.compute_tracking_control_signal(
-                        youbot_q,
-                        vec8(youbot_xd),
-                        vec8(youbot_ff));
-
+            VectorXd youbot_u = youbot_controller.compute_tracking_control_signal(youbot_q, vec8(youbot_xd), vec8(youbot_ff));
 
             lbr4p_q = lbr4p_q + lbr4p_u*sampling_time;
             youbot_q = youbot_q + youbot_u*sampling_time;
-
 
             //Send desired values
             lbr4p_vreprobot.send_q_to_vrep(lbr4p_q);
@@ -218,7 +201,7 @@ DQ get_line_from_vrep(DQ_VrepInterface& vrep_interface, const std::string& line_
     return l + E_*m;
 }
 
-void compute_lbr4p_reference(DQ& xd, DQ& xd_dot, const DQ_SerialManipulator& lbr4p, const SimulationParameters& simulation_parameters, const DQ& x0, const double& t)
+std::tuple<DQ, DQ>  compute_lbr4p_reference(const DQ_SerialManipulator& lbr4p, const SimulationParameters& simulation_parameters, const DQ& x0, const double& t)
 {
     const double& dispz = simulation_parameters.dispz;
     const double& wd = simulation_parameters.wd;
@@ -231,24 +214,24 @@ void compute_lbr4p_reference(DQ& xd, DQ& xd_dot, const DQ_SerialManipulator& lbr
     DQ p = 1 + E_*0.5*z;
 
     //Return pose
-    xd = r*x0*p;
+    DQ xd = r*x0*p;
 
     //Return time derivative
     double phidot = (pi/2.0)*cos(wn*t)*wn;
     DQ rdot = 0.5*(-sin(phi/2.0) + k_*cos(phi/2.0))*phidot;
     DQ pdot = -E_*0.5*dispz*wd*sin(wd*t)*k_;
-    xd_dot = rdot*x0*p + r*x0*pdot;
+    DQ xd_dot = rdot*x0*p + r*x0*pdot;
 
     // The trajectory,including the feedforward term, has been calculated with
     // respect to the manipulator base. Therefore, we need to calculate them
     // with respect to the global reference frame.
     xd = lbr4p.get_reference_frame()*xd;
     xd_dot = lbr4p.get_reference_frame()*xd_dot;
+
+    return std::make_tuple(xd, xd_dot);
 }
 
-void compute_youbot_reference(DQ& youbot_xd,
-                              DQ& youbot_ff,
-                              SimulationParameters& simulation_parameters,
+std::tuple<DQ, DQ> compute_youbot_reference(SimulationParameters& simulation_parameters,
                               const DQ_ClassicQPController& controller,
                               const DQ& lbr4p_xd,
                               const DQ& lbr4p_ff)
@@ -258,8 +241,8 @@ void compute_youbot_reference(DQ& youbot_xd,
 
     // Youbot trajectory
     // Those are the trajectory components to track the whiteboard
-    youbot_xd = lbr4p_xd * (1 + 0.5*E_*0.015*k_) * j_;
-    youbot_ff = lbr4p_ff * (1 + 0.5*E_*0.015*k_) * j_;
+    DQ youbot_xd = lbr4p_xd * (1 + 0.5*E_*0.015*k_) * j_;
+    DQ youbot_ff = lbr4p_ff * (1 + 0.5*E_*0.015*k_) * j_;
     // Now we modify the trajectory in order to draw a circle, but we do it
     // only if the whiteboard pen tip is on the whiteboard surface.
     if(simulation_parameters.first_iteration)
@@ -275,14 +258,11 @@ void compute_youbot_reference(DQ& youbot_xd,
     }
     youbot_xd = youbot_xd * simulation_parameters.rcircle * tcircle;
     youbot_ff = youbot_ff * simulation_parameters.rcircle * tcircle;
+
+    return std::make_tuple(youbot_xd, youbot_ff);
 }
 
-void compute_constraints(MatrixXd& Jconstraint, VectorXd& bconstraint,
-                          DQ_WholeBody& youbot,
-                          const VectorXd& youbot_q,
-                          const DQ& plane,
-                          const DQ& cylinder1,
-                          const DQ& cylinder2)
+std::tuple<MatrixXd, VectorXd> compute_constraints(DQ_WholeBody& youbot, const VectorXd& youbot_q, const DQ& plane, const DQ& cylinder1, const DQ& cylinder2)
 {
     double robot_radius = 0.35;
     double radius_cylinder1 = 0.1;
@@ -305,8 +285,10 @@ void compute_constraints(MatrixXd& Jconstraint, VectorXd& bconstraint,
     MatrixXd Jdist_cylinder2 = youbot.point_to_line_distance_jacobian(Jt, t, cylinder2);
     double dist_cylinder2 = DQ_Geometry::point_to_line_squared_distance(t, cylinder2) - pow(radius_cylinder2 + robot_radius, 2);
 
-    Jconstraint.resize(3,8);
+    MatrixXd Jconstraint(3,8);
     Jconstraint << Jdist_plane, Jdist_cylinder1, Jdist_cylinder2;
-    bconstraint.resize(3);
+    VectorXd bconstraint(3);
     bconstraint << dist_plane, dist_cylinder1, dist_cylinder2;
+
+    return std::make_tuple(Jconstraint, bconstraint);
 }
