@@ -126,7 +126,7 @@ int main(void)
         //Get initial robot information
         VectorXd lbr4p_q(7); lbr4p_q << 0, 1.7453e-01, 0, 1.5708, 0, 2.6273e-01, 0;
         lbr4p_vreprobot.send_q_to_vrep(lbr4p_q);
-        DQ lbr4p_x0 = conj(lbr4p.reference_frame())*lbr4p.fkm(lbr4p_q);
+        DQ lbr4p_x0 = conj(lbr4p.get_reference_frame())*lbr4p.fkm(lbr4p_q);
         VectorXd youbot_q = youbot_vreprobot.get_q_from_vrep();
 
         DQ lbr4p_xd;
@@ -242,8 +242,8 @@ void compute_lbr4p_reference(DQ& xd, DQ& xd_dot, const DQ_SerialManipulator& lbr
     // The trajectory,including the feedforward term, has been calculated with
     // respect to the manipulator base. Therefore, we need to calculate them
     // with respect to the global reference frame.
-    xd = lbr4p.reference_frame()*xd;
-    xd_dot = lbr4p.reference_frame()*xd_dot;
+    xd = lbr4p.get_reference_frame()*xd;
+    xd_dot = lbr4p.get_reference_frame()*xd_dot;
 }
 
 void compute_youbot_reference(DQ& youbot_xd,
