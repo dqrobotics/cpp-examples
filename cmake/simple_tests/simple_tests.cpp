@@ -23,6 +23,7 @@ Contributors:
 #include "test_issue_24.h"
 #include "test_issue_25.h"
 #include "test_issue_26.h"
+#include "test_issue_py_18.h"
 
 int main()
 {
@@ -37,6 +38,10 @@ int main()
     //Evaluate log()
     //https://github.com/dqrobotics/cpp/issues/26
     test_issue_26();
+
+    //Evaluate to_string()
+    //https://github.com/dqrobotics/python/issues/18
+    test_issue_py_18();
 
     return 0;
 }
