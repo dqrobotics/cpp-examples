@@ -24,6 +24,7 @@ Contributors:
 #include "test_issue_25.h"
 #include "test_issue_26.h"
 #include "test_issue_py_18.h"
+#include "test_issue_py_22.h"
 
 int main()
 {
@@ -42,6 +43,10 @@ int main()
     //Evaluate to_string()
     //https://github.com/dqrobotics/python/issues/18
     test_issue_py_18();
+
+    //Evaluate DQ_DifferentialDriveRobot::pose_jacobian()
+    //https://github.com/dqrobotics/python/issues/22
+    test_issue_py_22();
 
     return 0;
 }
