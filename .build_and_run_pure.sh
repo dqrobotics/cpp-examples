@@ -10,7 +10,8 @@ for pure_example in ${pure_examples_array[@]}; do
     cd $pure_example
     mkdir -p build
     cd build
-    cmake -DCMAKE_BUILD_TYPE=Release .. 
+    cmake -DCMAKE_BUILD_TYPE=Release ..
+    make
     ./$pure_example
     cd ..
     cd ..
