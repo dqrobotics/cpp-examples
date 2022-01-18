@@ -12,7 +12,6 @@ for pure_example in ${pure_examples_array[@]}; do
     cd build
     cmake -DCMAKE_BUILD_TYPE=Release ..
     make
-    ./$pure_example
     cd ..
     cd ..
 done
