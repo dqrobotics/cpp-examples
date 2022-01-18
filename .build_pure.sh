@@ -12,5 +12,5 @@ for pure_example in ${pure_examples_array[@]}; do
     cd build
     cmake -DCMAKE_BUILD_TYPE=Release .. 
     cd ..
-    cd ...
+    cd ..
 done
