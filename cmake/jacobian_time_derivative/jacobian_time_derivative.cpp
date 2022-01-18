@@ -29,7 +29,7 @@ int main()
 {
 
     //Create a new DQ_kinematics object with KUKA LWR parameters
-    DQ_SerialManipulator kuka = KukaLw4Robot::kinematics();
+    DQ_SerialManipulatorDH kuka = KukaLw4Robot::kinematics();
 
     //Integration step for the numerical calculations
     double T = 1e-3;
