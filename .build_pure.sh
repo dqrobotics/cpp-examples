@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd cmake
+
 # An array containing the "pure" examples, i.e. those that can be compiled and ran without any extra package.
 declare -a pure_examples_array=("jacobian_time_derivative" "performance_evaluation" "simple_tests")
  
