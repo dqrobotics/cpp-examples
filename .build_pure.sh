@@ -11,7 +11,17 @@ for pure_example in ${pure_examples_array[@]}; do
     mkdir -p build
     cd build
     cmake -DCMAKE_BUILD_TYPE=Release ..
+    
     make
+    # Guaranteeing a error when the build fails.
+    if [ $? -eq 0 ]
+    then
+      echo "Successfully built $pure_example"
+    else
+      echo "Failed building $pure_example"
+      exit 1
+    fi
+    
     cd ..
     cd ..
 done
