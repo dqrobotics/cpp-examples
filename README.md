@@ -1,17 +1,20 @@
-# dq-robotics-cpp-examples [![Build Status](https://travis-ci.com/dqrobotics/cpp-examples.svg?branch=master)](https://travis-ci.com/dqrobotics/cpp-examples)
+# dq-robotics-cpp-examples
 DQ Robotics C++ examples
 
 ## Running examples
 
 To try out the examples from this repository, do the following:
 
-1. Clone the repository
+1. Install DQRobotics C++11.
+Refer to the [website](https://dqrobotics.github.io/).
+
+2. Clone the examples repository
 
 ```
 git clone https://github.com/dqrobotics/cpp-examples.git --recursive
 ```
 
-2. Browse to the example folder and compile. For example,
+3. Browse to the example folder and compile. For example,
 
 ```
 cd cmake/performance_evaluation
@@ -21,13 +24,13 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 make
 ```
 
-3. Run the example. For example,
+4. Run the example. For example,
 
 ```
 ./performance_evaluation
 ```
 
-4. If you get something similar to what is shown below, your example ran properly
+5. If you get something similar to what is shown below, your example ran properly
 
 ```
 Time to calculate a 7 DOF random vector 1000000 times was 0.0336847 s. Or per time [s]: 3.36847e-08
@@ -39,12 +42,3 @@ Time to create a dual quaternion from a random VectorXd 1000000 times was 0.0671
 Time to calculate the dual quaternion product 1000000 times was 1.17405 s. Or per time [s]: 1.17405e-06
 Time to calculate the dual quaternion sum 1000000 times was 0.166378 s. Or per time [s]: 1.66378e-07
 ```
-## Opening examples as QTCreator Projects
-
-1. Download and install QT from https://www.qt.io/download or your favorite source. Installing a gcc64 compatible kit, such as Qt 5.12 is also recommended
-
-2. File >> Open File or Project 
-
-3. Choose the example's CMakeLists.txt
-
-4. Configure the QTCreator kit and the source code should show up and be compilable.
