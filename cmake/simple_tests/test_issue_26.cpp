@@ -3,7 +3,7 @@
 
 #include "test_issue_26.h"
 
-#include <dqrobotics/robot_modeling/DQ_SerialManipulator.h>
+#include <dqrobotics/robot_modeling/DQ_SerialManipulatorMDH.h>
 #include <dqrobotics/utils/DQ_LinearAlgebra.h>
 #include <iostream>
 #include <cmath>
@@ -13,12 +13,12 @@ using namespace DQ_robotics;
 void test_issue_26()
 {
     // robot definition
-    Matrix<double, 4, 7> kuka_dh;
-    kuka_dh << 0, 0, 0, 0, 0, 0, 0, // theta
+    Matrix<double, 4, 7> kuka_mdh;
+    kuka_mdh << 0, 0, 0, 0, 0, 0, 0, // theta
                0.3105, 0, 0.4, 0, 0.39, 0, 0, // d
                0, 0, 0, 0, 0, 0, 0, // a
                0, M_PI_2, -M_PI_2, -M_PI_2, M_PI_2, M_PI_2, -M_PI_2; // alpha
-    DQ_SerialManipulator kuka(kuka_dh,"modified");
+    DQ_SerialManipulatorMDH kuka(kuka_mdh);
 
     int num_dof = kuka.get_dim_configuration_space();
     VectorXd q(num_dof), q_dot(num_dof);
