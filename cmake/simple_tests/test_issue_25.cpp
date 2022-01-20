@@ -14,7 +14,7 @@ using namespace DQ_robotics;
 void test_issue_25()
 {
     // robot definition
-    Matrix<double, 4, 7> kuka_dh;
+    Matrix<double, 4, 7> kuka_mdh;
     kuka_mdh << 0, 0, 0, 0, 0, 0, 0, // theta
             0.3105, 0, 0.4, 0, 0.39, 0, 0, // d
             0, 0, 0, 0, 0, 0, 0, // a
