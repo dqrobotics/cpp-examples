@@ -46,7 +46,7 @@ int main()
         random_theta[i] = VectorXd::Random(7);
     }
 
-    DQ_SerialManipulator robot = KukaLw4Robot::kinematics();
+    DQ_SerialManipulatorDH robot = KukaLw4Robot::kinematics();
 
     MatrixXd pose_jacobian;
     auto start = std::chrono::system_clock::now();
