@@ -201,7 +201,7 @@ int main(void)
             MatrixXd I_DH_frame = R.transpose()*I_absolute_frame*R;
             inertia_list.block(j*3, k*3, 3,3) = I_DH_frame;
 
-            //compute the centor of mass of each link expressed in the absolute frame.
+            //compute the center of mass of each link expressed in the absolute frame.
             VectorXd com0 = vi.get_center_of_mass(link, DQ_VrepInterface::ABSOLUTE_FRAME);
             DQ xcom0 = 1+ E_*0.5*DQ(0,com0(0), com0(1), com0(2));
 
