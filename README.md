@@ -1,9 +1,21 @@
-# dq-robotics-cpp-examples
-DQ Robotics C++ examples
+# DQ Robotics C++ Examples
+
+|OS|Support|
+|---|---|
+|Ubuntu LTS| Yes |
+|Linux (Other flavors)| None |
+|Windows| Partial |
+|MacOS| Partial |
 
 ## Running examples
 
 To try out the examples from this repository, do the following:
+
+0. Be sure you have the pre-requisites to compile CMake-based C++ projects.
+
+```shell
+sudo apt install git cmake g++
+```
 
 1. Install DQRobotics C++11.
 Refer to the [website](https://dqrobotics.github.io/).
@@ -11,7 +23,7 @@ Refer to the [website](https://dqrobotics.github.io/).
 2. Clone the examples repository
 
 ```
-git clone https://github.com/dqrobotics/cpp-examples.git --recursive
+git clone https://github.com/dqrobotics/cpp-examples.git 
 ```
 
 3. Browse to the example folder and compile. For example,
