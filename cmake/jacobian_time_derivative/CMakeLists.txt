@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 3.1)
-
 project(jacobian_time_derivative)
-
 set (CMAKE_CXX_STANDARD 11)
 
+include(${CMAKE_CURRENT_SOURCE_DIR}/../dqrobotics_dependencies.cmake)
+
 add_executable(${PROJECT_NAME}
-    jacobian_time_derivative.cpp
+    ${PROJECT_NAME}.cpp
     )
 
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}
-    dqrobotics
+    -ldqrobotics
     )
