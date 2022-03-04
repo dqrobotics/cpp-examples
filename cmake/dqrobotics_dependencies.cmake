@@ -1,3 +1,10 @@
+if(WIN32)
+    set(CMAKE_TOOLCHAIN_FILE C:/vcpkg/scripts/buildsystems/vcpkg.cmake)
+endif()
+
+project(dqrobotics_dependencies)
+set (CMAKE_CXX_STANDARD 11)
+
 if(UNIX AND NOT APPLE)
     FIND_PACKAGE(Eigen3 REQUIRED)
     INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIR})
@@ -18,7 +25,15 @@ if(APPLE)
 endif()
 
 if(WIN32)
-    ADD_DEFINITIONS(-D_USE_MATH_DEFINES)
-    FIND_PACKAGE(Eigen3 CONFIG REQUIRED)
-    INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIR})
+    ADD_DEFINITIONS(-D_USE_MATH_DEFINES) 
+    FIND_PACKAGE(Eigen3 CONFIG REQUIRED) 
+    INCLUDE_DIRECTORIES(
+	${EIGEN3_INCLUDE_DIR}
+	# Default path when using cmake .., cmake --build ., cmake --install .
+	"C:/Program Files (x86)/dqrobotics/include"
+	) 
+	LINK_DIRECTORIES(
+	# Default path when using cmake .., cmake --build ., cmake --install .
+    "C:/Program Files (x86)/dqrobotics/lib"
+	)
 endif()

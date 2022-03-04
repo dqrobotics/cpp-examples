@@ -1,8 +1,7 @@
-cmake_minimum_required(VERSION 3.1)
-project(simple_tests)
-set (CMAKE_CXX_STANDARD 11)
-
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 include(${CMAKE_CURRENT_SOURCE_DIR}/../dqrobotics_dependencies.cmake)
+
+project(simple_tests)
 
 add_executable(${PROJECT_NAME}
     ${PROJECT_NAME}.cpp
@@ -13,6 +12,6 @@ add_executable(${PROJECT_NAME}
     test_issue_py_22.cpp
     )
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}
-    -ldqrobotics
+    dqrobotics
 )
 
