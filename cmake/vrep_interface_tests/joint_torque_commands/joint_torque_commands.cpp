@@ -35,7 +35,7 @@ Prerequisites:
 
 Note:
 This example saves in the build folder two CSV files containing the torque references and the torque readings.
-You do not require create manually both CVS files in the build folder, since they are created automatically
+You do not require to create manually both CVS files in the build folder, since they are created automatically
 when this example is executed.
 
 You can see the results using the following Matlab code:
