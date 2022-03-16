@@ -20,6 +20,8 @@ sudo apt install git cmake g++
 1. Install DQRobotics C++11.
 Refer to the [website](https://dqrobotics.github.io/).
 
+![performance_evaluation](https://user-images.githubusercontent.com/23158313/158611353-5c975dcd-cd30-4d86-a916-00f24a712a37.gif)
+
 2. Clone the examples repository
 
 ```
