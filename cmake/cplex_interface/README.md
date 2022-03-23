@@ -1,10 +1,14 @@
 ## Additional requirements
 
-1. Download [V-REP (CoppeliaSim).](https://www.coppeliarobotics.com/)
-2. Install the interface between DQ Robotics and V-REP:
+1. Install [CPLEX.](https://www.ibm.com/products/ilog-cplex-optimization-studio)
+2. Install the interface between DQ Robotics and CPLEX:
 
 ```shell
-sudo apt-get install libdqrobotics-interface-vrep
+sudo apt-get install libdqrobotics-interface-cplex
 ```
 
-![req](https://user-images.githubusercontent.com/23158313/158897518-a61bf680-9836-4aa8-9f66-95c05fd35f90.gif)
+3. Set your CPLEX library PATH on the CMakeLists.txt. 
+
+```txt
+set( CPLEX_PATH /opt/ibm/ILOG/CPLEX_Studio_your_version)
+```
