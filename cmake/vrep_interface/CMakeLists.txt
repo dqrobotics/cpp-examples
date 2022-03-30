@@ -75,4 +75,5 @@ TARGET_LINK_LIBRARIES(vrep_interface_move_kuka_and_youbot
     concert
     dqrobotics
     dqrobotics-interface-vrep
+    dl
 )
