@@ -46,7 +46,7 @@ int main(void)
                                             "LBR_iiwa_14_R820_joint6",
                                             "LBR_iiwa_14_R820_joint7"};
 
-    DQ_SerialManipulator robot = KukaLw4Robot::kinematics();
+    auto robot = KukaLw4Robot::kinematics();
 
     VectorXd theta_d(7);
     theta_d << 0.,pi/2.,0.,pi/2.,0.,pi/2.,0.;
