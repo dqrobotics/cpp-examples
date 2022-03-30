@@ -33,7 +33,7 @@ using namespace DQ_robotics;
 int main(void)
 {
     DQ_CPLEXSolver cplex_solver;
-    DQ_SerialManipulator robot = KukaLw4Robot::kinematics();
+    DQ_SerialManipulatorDH robot = KukaLw4Robot::kinematics();
 
     DQ_ClassicQPController classic_qp_controller(&robot,&cplex_solver);
     classic_qp_controller.set_control_objective(ControlObjective::Pose);
