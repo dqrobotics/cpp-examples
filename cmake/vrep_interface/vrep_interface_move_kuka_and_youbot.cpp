@@ -99,7 +99,7 @@ int main(void)
         YouBotVrepRobot youbot_vreprobot("youBot",&vi);
 
         //Load DQ Robotics Kinematics
-        DQ_SerialManipulator lbr4p = lbr4p_vreprobot.kinematics();
+        auto lbr4p = lbr4p_vreprobot.kinematics();
         DQ_WholeBody youbot = youbot_vreprobot.kinematics();
 
         //Initialize controllers
