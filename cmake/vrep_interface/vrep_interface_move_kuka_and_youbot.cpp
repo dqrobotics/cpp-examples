@@ -87,7 +87,7 @@ int main(void)
         simulation_parameters.total_time = 40.0;
         simulation_parameters.dispz = 0.1;
 
-        if(!vi.connect(19998,100,5))
+        if(!vi.connect(19997,100,5))
         {
             throw std::runtime_error("Unable to connect to vrep!");
         }
