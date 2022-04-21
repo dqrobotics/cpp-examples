@@ -48,7 +48,7 @@ static VectorXd deg2rad_with_mask(const VectorXd& v, const VectorXi& mask=Vector
 
 void load_dq_serial_manipulator_dh()
 {
-    DQ_SerialManipulatorDH robot_dh = DQ_JsonReader::get_from_json<DQ_SerialManipulatorDH>("/home/nml/git/cpp-examples/cmake/json11_interface/dq_serial_manipulator_dh.json");
+    DQ_SerialManipulatorDH robot_dh = DQ_JsonReader::get_from_json<DQ_SerialManipulatorDH>("../dq_serial_manipulator_dh.json");
 
 //"theta":[-90, 90, -90, 0, 90, -90,  0,  0,  0],
     VectorXd thetas_check(9); thetas_check << -90, 90, -90, 0, 90, -90,  0,  0,  0;
