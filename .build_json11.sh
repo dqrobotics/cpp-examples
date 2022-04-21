@@ -5,7 +5,7 @@ cd cmake
 cd json11_interface
 mkdir -p build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake -DCMAKE_BUILD_TYPE=Debug ..
 
 make
 # Guaranteeing a error when the build fails.
