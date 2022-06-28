@@ -32,7 +32,7 @@ Contributors:
 using namespace DQ_robotics;
 int main()
 {
-    const int RUN_COUNT = 1000000;
+    const int RUN_COUNT = 1000;
 
     //Initialize vectors with random values
     std::vector<DQ> random_dq_a(RUN_COUNT);
