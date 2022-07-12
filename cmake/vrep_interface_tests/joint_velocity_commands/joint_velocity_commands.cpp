@@ -13,6 +13,7 @@ This file is part of DQ Robotics.
     along with DQ Robotics.  If not, see <http://www.gnu.org/licenses/>.
 Contributors:
 - Juan Jose Quiroz Omana (juanjqo@g.ecc.u-tokyo.ac.jp)
+- Murilo Marques Marinho (murilo@g.ecc.u-tokyo.ac.jp)
 
 Instructions:
 Prerequisites:
@@ -47,7 +48,6 @@ int main(void)
     std::cout << "Starting V-REP simulation..." << std::endl;
     vi.start_simulation();
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    int interations = 1000;
 
     // robot definition
     Matrix<double, 5, 7> robot_dh;
@@ -82,7 +82,7 @@ int main(void)
         VectorXd q = vi.get_joint_positions(jointnames);
         vi.set_object_pose("ReferenceFrame", franka.fkm(q));
         VectorXd u = controller.compute_setpoint_control_signal(q, vec4(xdesired.translation()));
-        std::cout << "error: " <<norm(controller.get_last_error_signal())<<" Iteration: "<<i<<std::endl;
+        std::cout << "error: " <<controller.get_last_error_signal().norm()<<" Iteration: "<<i<<std::endl;
         std::cout<< "Is stable?: "<<controller.system_reached_stable_region()<<std::endl;
 
         vi.set_joint_target_velocities(jointnames, u);
