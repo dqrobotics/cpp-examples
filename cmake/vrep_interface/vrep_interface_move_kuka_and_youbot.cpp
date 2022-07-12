@@ -1,5 +1,5 @@
 ﻿/**
-(C) Copyright 2019 DQ Robotics Developers
+(C) Copyright 2019-2022 DQ Robotics Developers
 
 This file is part of DQ Robotics.
 
@@ -17,7 +17,7 @@ This file is part of DQ Robotics.
     along with DQ Robotics.  If not, see <http://www.gnu.org/licenses/>.
 
 Contributors:
-- Murilo M. Marinho (murilo@nml.t.u-tokyo.ac.jp)
+- Murilo M. Marinho (murilo@g.ecc.u-tokyo.ac.jp)
 */
 
 #include <memory>
@@ -28,7 +28,7 @@ Contributors:
 #include <tuple>
 
 #include <dqrobotics/DQ.h>
-#include <dqrobotics/solvers/DQ_CPLEXSolver.h>
+#include <dqrobotics/solvers/DQ_QPOASESSolver.h>
 #include <dqrobotics/robot_modeling/DQ_HolonomicBase.h>
 #include <dqrobotics/robot_control/DQ_PseudoinverseController.h>
 #include <dqrobotics/robot_control/DQ_ClassicQPController.h>
@@ -60,17 +60,17 @@ DQ get_line_from_vrep(DQ_VrepInterface& vrep_interface,
                       const DQ& direction);
 
 std::tuple<DQ, DQ> compute_lbr4p_reference(
-                             const DQ_SerialManipulator& lbr4p,
-                             const SimulationParameters& simulation_parameters,
-                             const DQ& x0,
-                             const double &t);
+        const DQ_SerialManipulator& lbr4p,
+        const SimulationParameters& simulation_parameters,
+        const DQ& x0,
+        const double &t);
 
 std::tuple<DQ, DQ> compute_youbot_reference(SimulationParameters& simulation_parameters,
-                              const DQ_ClassicQPController& controller,
-                              const DQ& lbr4p_xd,
-                              const DQ& lbr4p_ff);
+                                            const DQ_ClassicQPController& controller,
+                                            const DQ& lbr4p_xd,
+                                            const DQ& lbr4p_ff);
 
-std::tuple<MatrixXd, VectorXd> compute_constraints(DQ_WholeBody& youbot, const VectorXd& youbot_q, const DQ& plane, const DQ& cylinder1, const DQ& cylinder2);
+std::tuple<MatrixXd, VectorXd> compute_constraints(DQ_SerialWholeBody& youbot, const VectorXd& youbot_q, const DQ& plane, const DQ& cylinder1, const DQ& cylinder2);
 
 int main(void)
 {
@@ -91,7 +91,9 @@ int main(void)
         {
             throw std::runtime_error("Unable to connect to vrep!");
         }
+
         std::cout << "Starting V-REP simulation..." << std::endl;
+        vi.set_synchronous(true);
         vi.start_simulation();
 
         //Initialize VREP robots
@@ -99,8 +101,8 @@ int main(void)
         YouBotVrepRobot youbot_vreprobot("youBot",&vi);
 
         //Load DQ Robotics Kinematics
-        auto lbr4p = lbr4p_vreprobot.kinematics();
-        DQ_WholeBody youbot = youbot_vreprobot.kinematics();
+        DQ_SerialManipulatorDH lbr4p = lbr4p_vreprobot.kinematics();
+        DQ_SerialWholeBody youbot = youbot_vreprobot.kinematics();
 
         //Initialize controllers
         DQ_PseudoinverseController lbr4p_controller(&lbr4p);
@@ -108,7 +110,7 @@ int main(void)
         lbr4p_controller.set_gain(10.0);
         lbr4p_controller.set_damping(0.01);
 
-        DQ_CPLEXSolver solver;
+        DQ_QPOASESSolver solver;
         DQ_ClassicQPController youbot_controller(&youbot, &solver);
         youbot_controller.set_control_objective(ControlObjective::Pose);
         youbot_controller.set_gain(10.0);
@@ -158,6 +160,7 @@ int main(void)
             lbr4p_vreprobot.send_q_to_vrep(lbr4p_q);
             youbot_vreprobot.send_q_to_vrep(youbot_q);
 
+            vi.trigger_next_simulation_step();
             std::this_thread::sleep_for(std::chrono::milliseconds(int(sampling_time*1000.0)));
         }
 
@@ -167,7 +170,8 @@ int main(void)
 
     } catch (std::runtime_error& e)
     {
-        std::cout << "There was an error connecting to V-REP, please check that it is open and that the Kuka Robot is in the scene." << std::endl;
+        std::cout << "There was an error connecting to CoppeliaSim, please check that CoppeliaSim is open and that the corret scene is open." << std::endl;
+        std::cout << "Obtain the scene here: https://github.com/dqrobotics/matlab-examples/blob/master/vrep/simulation-ram-paper/vrep_scene_felt_pen_official_scene.ttt " << std::endl;
         std::cout << e.what() << std::endl;
         vi.stop_simulation();
         vi.disconnect();
@@ -232,9 +236,9 @@ std::tuple<DQ, DQ>  compute_lbr4p_reference(const DQ_SerialManipulator& lbr4p, c
 }
 
 std::tuple<DQ, DQ> compute_youbot_reference(SimulationParameters& simulation_parameters,
-                              const DQ_ClassicQPController& controller,
-                              const DQ& lbr4p_xd,
-                              const DQ& lbr4p_ff)
+                                            const DQ_ClassicQPController& controller,
+                                            const DQ& lbr4p_xd,
+                                            const DQ& lbr4p_ff)
 {
     const double circle_radius = 0.1;
     const DQ tcircle = 1 + E_ * 0.5 * circle_radius * j_;
@@ -262,7 +266,7 @@ std::tuple<DQ, DQ> compute_youbot_reference(SimulationParameters& simulation_par
     return std::make_tuple(youbot_xd, youbot_ff);
 }
 
-std::tuple<MatrixXd, VectorXd> compute_constraints(DQ_WholeBody& youbot, const VectorXd& youbot_q, const DQ& plane, const DQ& cylinder1, const DQ& cylinder2)
+std::tuple<MatrixXd, VectorXd> compute_constraints(DQ_SerialWholeBody& youbot, const VectorXd& youbot_q, const DQ& plane, const DQ& cylinder1, const DQ& cylinder2)
 {
     double robot_radius = 0.35;
     double radius_cylinder1 = 0.1;
