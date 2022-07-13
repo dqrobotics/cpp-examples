@@ -23,6 +23,7 @@ Contributors:
 #include "test_issue_24.h"
 #include "test_issue_25.h"
 #include "test_issue_26.h"
+#include "test_issue_44.h"
 #include "test_issue_py_18.h"
 #include "test_issue_py_22.h"
 
@@ -39,6 +40,10 @@ int main()
     //Evaluate log()
     //https://github.com/dqrobotics/cpp/issues/26
     test_issue_26();
+
+    //Evaluate DQ_SerialWholeBody.fkm
+    //https://github.com/dqrobotics/cpp/issues/44
+    test_issue_44();
 
     //Evaluate to_string()
     //https://github.com/dqrobotics/python/issues/18

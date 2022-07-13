@@ -8,6 +8,7 @@ add_executable(${PROJECT_NAME}
     test_issue_24.cpp
     test_issue_25.cpp
     test_issue_26.cpp
+    test_issue_44.cpp
     test_issue_py_18.cpp
     test_issue_py_22.cpp
     )

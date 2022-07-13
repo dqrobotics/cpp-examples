@@ -14,11 +14,12 @@ using namespace DQ_robotics;
 void test_issue_25()
 {
     // robot definition
-    Matrix<double, 4, 7> kuka_mdh;
+    Matrix<double, 5, 7> kuka_mdh;
     kuka_mdh << 0, 0, 0, 0, 0, 0, 0, // theta
             0.3105, 0, 0.4, 0, 0.39, 0, 0, // d
             0, 0, 0, 0, 0, 0, 0, // a
-            0, M_PI_2, -M_PI_2, -M_PI_2, M_PI_2, M_PI_2, -M_PI_2; // alpha
+            0, M_PI_2, -M_PI_2, -M_PI_2, M_PI_2, M_PI_2, -M_PI_2,// alpha
+            0,      0,       0,       0,      0,      0,       0;//joint_types
     DQ_SerialManipulatorMDH kuka(kuka_mdh);
 
     int num_dof = kuka.get_dim_configuration_space();
