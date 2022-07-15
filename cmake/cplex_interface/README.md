@@ -7,10 +7,24 @@
 sudo apt-get install libdqrobotics-interface-cplex
 ```
 
-3. Set your CPLEX library PATH on the CMakeLists.txt. If your CPLEX library is located in /opt/ibm/ILOG will be founded automatically. Otherwise, your must set your CPLEX library manually. To do so, change the line set(AUTO_CPLEX_PATH true) to set(AUTO_CPLEX_PATH false). Then, add your CPLEX directory:
+3. Set your CPLEX library PATH on the CMakeLists.txt. If your CPLEX library is located in /opt/ibm/ILOG will be founded automatically. Otherwise, your must set your CPLEX library manually. To do so, change the line 
 
-
-```txt
-if (NOT AUTO_CPLEX_PATH) # Add manually your CPLEX library path:
-    set( CPLEX_PATH /opt/ibm/ILOG/CPLEX_Studio201 )
+```CMAKE
+set(AUTO_CPLEX_PATH true) 
 ```
+to 
+
+```CMAKE
+set(AUTO_CPLEX_PATH false)
+```
+
+Then, add your CPLEX directory:
+
+```CMAKE
+if (NOT AUTO_CPLEX_PATH) # Add manually your CPLEX library path:
+    set( CPLEX_PATH /my_cplex_directory)   
+```
+
+4. Build and enjoy!
+
+![cplex](https://user-images.githubusercontent.com/23158313/179157323-01619074-bdf7-477f-9d45-7bef582df9f5.gif)
