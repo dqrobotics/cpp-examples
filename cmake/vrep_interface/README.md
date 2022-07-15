@@ -6,5 +6,7 @@
 ```shell
 sudo apt-get install libdqrobotics-interface-vrep
 ```
-3. Download and open the [vrep_scene_felt_pen_official_scene.ttt](https://github.com/dqrobotics/matlab-examples/tree/master/vrep/simulation-ram-paper) VREP scene 
+3. Install the [cpp-interface-qpoases](https://github.com/dqrobotics/cpp-interface-qpoases)
+
+4. Download and open the [vrep_scene_felt_pen_official_scene.ttt](https://github.com/dqrobotics/matlab-examples/tree/master/vrep/simulation-ram-paper) VREP scene 
 
