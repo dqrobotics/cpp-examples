@@ -7,7 +7,7 @@ find_package (Threads REQUIRED)
 set (CMAKE_CXX_STANDARD 11)
 
 # By default, the AUTO_CPLEX_PATH variable is set to true. This means that your CPLEX library
-# will founded automatically. However, your CPLEX library must be located in /opt/ibm/ILOG CPLEX.
+# will found automatically. However, your CPLEX library must be located in /opt/ibm/ILOG CPLEX.
 
 #If you want to set your custom CPLEX libraty path, set to "false" the following line:
 set(AUTO_CPLEX_PATH true)  # Ex: set(AUTO_CPLEX_PATH false)
