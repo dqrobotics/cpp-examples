@@ -9,7 +9,7 @@ sudo apt-get install libdqrobotics-interface-vrep
 
 ![req](https://user-images.githubusercontent.com/23158313/158897518-a61bf680-9836-4aa8-9f66-95c05fd35f90.gif)
 
-## Compile, Run and Enjoy!
+## Compile, run and enjoy!
 
 Example: Consider the example vrep_interface/joint_torque_commands.
 1. Open the joint_torque_commands_no_gravity.ttt VREP scene. 
