@@ -1,0 +1,234 @@
+/**
+(C) Copyright 2022 DQ Robotics Developers
+This file is part of DQ Robotics.
+    DQ Robotics is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    DQ Robotics is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+    You should have received a copy of the GNU Lesser General Public License
+    along with DQ Robotics.  If not, see <http://www.gnu.org/licenses/>.
+Contributors:
+- Juan Jose Quiroz Omana (juanjqo@g.ecc.u-tokyo.ac.jp)
+*/
+
+#include <iostream>
+#include <Eigen/Dense>
+#include <dqrobotics/DQ.h>
+#include <thread>
+#include <dqrobotics/robot_control/DQ_ClassicQPController.h>
+#include <dqrobotics/utils/DQ_Constants.h>
+#include <dqrobotics/utils/DQ_Geometry.h>
+#include <dqrobotics/robot_modeling/DQ_HolonomicBase.h>
+#include <dqrobotics/robot_modeling/DQ_SerialManipulatorDH.h>
+#include <dqrobotics/robot_modeling/DQ_SerialManipulatorMDH.h>
+#include<dqrobotics/robot_modeling/DQ_DifferentialDriveRobot.h>
+#include <dqrobotics/robots/KukaLw4Robot.h>
+#include <vector>
+#include <memory>
+
+
+using namespace Eigen;
+using namespace DQ_robotics;
+
+
+/**
+ * @brief numerical_differentiation() returns the numerical differentiation of a
+ *           vector of matrices using the four-point central difference method.
+ * @param std::vector<Eigen::MatrixXd> J
+ * @param double T
+ * @return std::vector<MatrixXd> J_dot
+ */
+std::vector<MatrixXd> numerical_differentiation(const std::vector<Eigen::MatrixXd>& J,
+                                                    const double& T)
+{
+    int s = J.size();
+
+    MatrixXd J0 = J[0];
+    int m = J0.rows();
+    int n = J0.cols();
+    std::vector<MatrixXd> J_dot;
+
+    for(int i=0; i<s;i++)
+    {
+        J_dot.push_back(MatrixXd::Zero(m,n));
+    }
+
+    for(int i=2; i<s-2;i++)
+    {
+        J_dot[i] = ((J[i-2]-8*J[i-1]+8*J[i+1]-J[i+2])/(12*T));
+    }
+
+    return J_dot;
+}
+
+
+/**
+ * @brief check_pose_jacobian_derivative() checks the pose_jacobian_derivative method.
+ * @param std::shared_ptr<DQ_Kinematics> robot
+ * @param int iterations
+ * @param double T
+ * @param double threshold
+ * @return bool accurate_computation
+ */
+bool check_pose_jacobian_derivative(const std::shared_ptr<DQ_Kinematics>& robot,
+                                    int& iterations,
+                                    double& T,
+                                    double& threshold)
+{
+    bool accurate_computation = true;
+    int njoints    = robot->get_dim_configuration_space();
+    VectorXd q     = VectorXd::Zero(njoints);
+    VectorXd q_dot = VectorXd::Zero(njoints);
+
+    std::vector<Eigen::MatrixXd> J;
+    std::vector<Eigen::MatrixXd> J_dot;
+    std::vector<Eigen::MatrixXd> numerical_J_dot;
+
+    double t = 0;
+    double w = 2*pi;
+
+    for(int i=0;i<iterations;i++)
+    {
+        t = i*T;
+        double theta = sin(w*t);
+        double theta_dot = w*cos(w*t);
+
+        for(int j=0;j<njoints;j++)
+        {
+            q(j) = theta;
+            q_dot(j) = theta_dot;
+        }
+        J.push_back(robot->pose_jacobian(q));
+        J_dot.push_back(robot->pose_jacobian_derivative(q, q_dot));
+    }
+    numerical_J_dot = numerical_differentiation(J, T);
+
+    for(int i=0;i<iterations;i++)
+    {
+       auto numerical_error = J_dot[i] - numerical_J_dot[i];
+       double     max_coeff = numerical_error.maxCoeff();
+       //std::cout<<"Error: "<<numerical_error.maxCoeff()<<std::endl;
+       if (i>2 && i<iterations-2) //discard the first two and last two values.
+       {
+           if(max_coeff > threshold)
+           {
+               //throw std::runtime_error(std::string("Wrong pose Jacobian derivative computation"));
+               accurate_computation = false;
+           }
+       }
+
+    }
+    return accurate_computation;
+}
+
+/**
+ * @brief map_return() maps a bool to string.
+ * @param bool value
+ * @return std::string
+ */
+std::string map_return(const bool& value)
+{
+    std::string msg;
+    if (value == true)
+    {
+        msg = "Yes!";
+    }else
+    {
+        msg = "No.";
+    }
+    return msg;
+}
+
+
+int main()
+{
+    double T       = 1e-4;
+    int iterations = 1500;
+    double threshold = 1e-10;
+
+    //------------test the numerical differentiation implementation----//
+    double t = 0;
+    double w = 2*pi;
+    std::vector<Eigen::MatrixXd> M;
+    std::vector<Eigen::MatrixXd> M_dot;
+    std::vector<Eigen::MatrixXd> Numerical_M_dot;
+    bool accurate_computation = true;
+    for(int i=0;i<iterations;i++)
+    {
+        t = i*T;
+        double theta = sin(w*t);
+        double theta_dot = w*cos(w*t);
+        M.push_back((MatrixXd(1,1) << theta).finished());
+        M_dot.push_back((MatrixXd(1,1) << theta_dot).finished());
+    }
+    Numerical_M_dot = numerical_differentiation(M, T);
+    for(int i=0;i<iterations;i++)
+    {
+       auto numerical_error = M_dot[i] - Numerical_M_dot[i];
+       double     max_coeff = numerical_error.maxCoeff();
+       //std::cout<<"Error: "<<numerical_error.maxCoeff()<<std::endl;
+       if (i>2 && i<iterations-2) //discard the first two and last two values.
+       {
+           if(max_coeff > threshold)
+           {
+                accurate_computation = false;
+           }
+       }
+    }
+    std::cout<<"is numerical_differentiation() working? "
+            <<map_return(accurate_computation)<<std::endl;
+
+
+    //------------Test for DQ_DifferentialDriveRobot()-----------------//
+    bool resultdr = check_pose_jacobian_derivative
+                  (std::static_pointer_cast<DQ_Kinematics>
+                  (std::make_shared<DQ_DifferentialDriveRobot>(DQ_DifferentialDriveRobot(0.3, 0.01))),
+                  iterations, T, threshold);
+    std::cout<<"is pose_jacobian_derivative() working for the "
+               "DQ_DifferentialDriveRobot()? "<<map_return(resultdr)<<std::endl;
+
+    //------------Test for DQ_HolonomicBase()------------------------//
+    bool result = check_pose_jacobian_derivative
+                  (std::static_pointer_cast<DQ_Kinematics>
+                  (std::make_shared<DQ_HolonomicBase>(DQ_HolonomicBase())),
+                  iterations, T, threshold);
+    std::cout<<"is pose_jacobian_derivative() working for the "
+               "DQ_HolonomicBase()?        "<<map_return(result)<<std::endl;
+
+    //------------Test for DQ_SerialManipulatorDH()------------------------//
+    bool resultdh = check_pose_jacobian_derivative
+                  (std::static_pointer_cast<DQ_Kinematics>
+                  (std::make_shared<DQ_SerialManipulatorDH>(KukaLw4Robot::kinematics())),
+                  iterations, T, threshold);
+    std::cout<<"is pose_jacobian_derivative() working for the "
+               "DQ_SerialManipulatorDH()?  "<<map_return(resultdh)<<std::endl;
+
+
+    //------------Test for DQ_SerialManipulatorMDH()------------------------//
+    Eigen::Matrix<double,5,7> franka_mdh(5,7);
+    franka_mdh <<  0,    0,     0,         0,      0,      0,     0,
+                 0.333, 0, 3.16e-1,       0, 3.84e-1,     0,     0,
+                  0,    0,     0,   8.25e-2, -8.25e-2,    0, 8.8e-2,
+                  0, -M_PI_2, M_PI_2, M_PI_2, -M_PI_2, M_PI_2, M_PI_2,
+                  0,    0,      0,        0,      0,      0,     0;
+    DQ_SerialManipulatorMDH franka(franka_mdh);
+    DQ robot_base = 1 + E_ * 0.5 * DQ(0, 0.0413, 0, 0);
+    franka.set_base_frame(robot_base);
+    franka.set_reference_frame(robot_base);
+    DQ robot_effector = 1+E_*0.5*k_*1.07e-1;
+    franka.set_effector(robot_effector);
+
+    bool resultmdh = check_pose_jacobian_derivative
+                  (std::static_pointer_cast<DQ_Kinematics>
+                  (std::make_shared<DQ_SerialManipulatorMDH>(franka)),
+                  iterations, T, threshold);
+    std::cout<<"is pose_jacobian_derivative() working for the "
+               "DQ_SerialManipulatorMDH()? "<<map_return(resultmdh)<<std::endl;
+
+
+    return 0;
+}
