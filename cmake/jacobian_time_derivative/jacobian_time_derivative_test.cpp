@@ -43,25 +43,14 @@ using namespace DQ_robotics;
  * @return std::vector<MatrixXd> J_dot
  */
 std::vector<MatrixXd> numerical_differentiation(const std::vector<Eigen::MatrixXd>& J,
-                                                    const double& T)
+                                                const double& T)
 {
     int s = J.size();
-
-    MatrixXd J0 = J[0];
-    int m = J0.rows();
-    int n = J0.cols();
-    std::vector<MatrixXd> J_dot;
-
-    for(int i=0; i<s;i++)
-    {
-        J_dot.push_back(MatrixXd::Zero(m,n));
-    }
-
+    std::vector<MatrixXd> J_dot(s, MatrixXd::Zero(J[0].rows(), J[0].cols()));
     for(int i=2; i<s-2;i++)
     {
         J_dot[i] = ((J[i-2]-8*J[i-1]+8*J[i+1]-J[i+2])/(12*T));
     }
-
     return J_dot;
 }
 
@@ -114,7 +103,7 @@ bool check_pose_jacobian_derivative(const std::shared_ptr<DQ_Kinematics>& robot,
        //std::cout<<"Error: "<<numerical_error.maxCoeff()<<std::endl;
        if (i>2 && i<iterations-2) //discard the first two and last two values.
        {
-           if(max_coeff > threshold)
+           if(std::abs(max_coeff) > threshold)
            {
                //throw std::runtime_error(std::string("Wrong pose Jacobian derivative computation"));
                accurate_computation = false;
@@ -173,7 +162,7 @@ int main()
        //std::cout<<"Error: "<<numerical_error.maxCoeff()<<std::endl;
        if (i>2 && i<iterations-2) //discard the first two and last two values.
        {
-           if(max_coeff > threshold)
+           if(std::abs(max_coeff) > threshold)
            {
                 accurate_computation = false;
            }
