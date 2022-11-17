@@ -1,3 +1,4 @@
+
 /**
 (C) Copyright 2022 DQ Robotics Developers
 This file is part of DQ Robotics.
@@ -31,8 +32,9 @@ Prerequisites:
 #include <dqrobotics/robot_modeling/DQ_SerialManipulatorMDH.h>
 #include <dqrobotics/solvers/DQ_QPOASESSolver.h>
 #include <dqrobotics/robot_control/DQ_ClassicQPController.h>
-#include<dqrobotics/utils/DQ_Constants.h>
+#include <dqrobotics/utils/DQ_Constants.h>
 #include <dqrobotics/utils/DQ_Geometry.h>
+#include <dqrobotics/robots/FrankaEmikaPandaRobot.h>
 
 
 using namespace Eigen;
@@ -58,19 +60,7 @@ int main()
 
 
     //------------------- Robot definition--------------------------
-    //---------- Franka Emika Panda serial manipulator
-    Eigen::Matrix<double,5,7> franka_mdh(5,7);
-    franka_mdh <<  0,    0,     0,         0,      0,      0,     0,
-                 0.333, 0, 3.16e-1,       0, 3.84e-1,     0,     0,
-                  0,    0,     0,   8.25e-2, -8.25e-2,    0, 8.8e-2,
-                  0, -M_PI_2, M_PI_2, M_PI_2, -M_PI_2, M_PI_2, M_PI_2,
-                  0,    0,      0,        0,      0,      0,     0;
-    DQ_SerialManipulatorMDH franka(franka_mdh);
-    DQ robot_base = 1 + E_ * 0.5 * DQ(0, 0.0413, 0, 0);
-    franka.set_base_frame(robot_base);
-    franka.set_reference_frame(robot_base);
-    DQ robot_effector = 1+E_*0.5*k_*1.07e-1;
-    franka.set_effector(robot_effector);
+    DQ_SerialManipulatorMDH franka = FrankaEmikaPandaRobot::kinematics();
 
     //Update the base of the robot from CoppeliaSim
     DQ new_base_robot;
@@ -100,7 +90,7 @@ int main()
     const double safe_angle = 15*(pi/180);
     const double T = 0.005;
     const double w = 0.2;
-    const double Alpha = 20*(pi/180);
+    const double alpha = 20*(pi/180);
     double t = 0;
 
 
@@ -108,8 +98,8 @@ int main()
     {
         t = i*T;
 
-        double phi_t = Alpha*sin(w*t);
-        double phi_t_dot = Alpha*w*cos(w*t);
+        double phi_t = alpha*sin(w*t);
+        double phi_t_dot = alpha*w*cos(w*t);
         DQ r_dyn = cos(phi_t/2) + i_*sin(phi_t/2); //
         DQ r_dyn_dot = (-sin(phi_t/2)  + i_*cos(phi_t/2))*(phi_t_dot/2);
 
