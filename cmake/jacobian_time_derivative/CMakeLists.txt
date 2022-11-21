@@ -10,3 +10,11 @@ add_executable(${PROJECT_NAME}
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}
     dqrobotics
     )
+
+add_executable(jacobian_time_derivative_test
+    jacobian_time_derivative_test.cpp
+    )
+
+TARGET_LINK_LIBRARIES(jacobian_time_derivative_test
+    dqrobotics
+    )
