@@ -26,7 +26,7 @@ acceleration is not taken into account. Because of that, the gravity on the Copp
 Instructions:
 Prerequisites:
 - dqrobotics
-- dqrobotics-vrep-interface
+- dqrobotics-interface-vrep
 
 1) Open the CoppeliaSim scene joint_torque_commands_no_gravity.ttt
 2) Be sure that the Lua script attached to the object DQRoboticsApiCommandServer is updated.
