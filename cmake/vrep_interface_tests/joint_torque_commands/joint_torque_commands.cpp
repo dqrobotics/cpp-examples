@@ -122,7 +122,7 @@ int main(void)
 
     VectorXd vec_torques(7);
 
-    double Kp = 0.04; //4.5
+    double Kp = 0.01; //4.5
     double Kv = 3*sqrt(Kp);
     VectorXd qd = VectorXd(7);
     qd <<-0.70, -0.10, 1.66, -2.34,0.40, 1.26, 0.070;
