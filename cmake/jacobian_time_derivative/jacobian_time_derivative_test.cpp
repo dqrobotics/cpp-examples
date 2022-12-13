@@ -15,22 +15,6 @@ Contributors:
 - Juan Jose Quiroz Omana (juanjqo@g.ecc.u-tokyo.ac.jp)
 */
 
-/*
-#include <iostream>
-#include <Eigen/Dense>
-#include <dqrobotics/DQ.h>
-#include <thread>
-#include <dqrobotics/robot_control/DQ_ClassicQPController.h>
-#include <dqrobotics/utils/DQ_Constants.h>
-#include <dqrobotics/utils/DQ_Geometry.h>
-#include <dqrobotics/robot_modeling/DQ_HolonomicBase.h>
-#include <dqrobotics/robot_modeling/DQ_SerialManipulatorDH.h>
-#include <dqrobotics/robot_modeling/DQ_SerialManipulatorMDH.h>
-#include<dqrobotics/robot_modeling/DQ_DifferentialDriveRobot.h>
-
-#include <vector>
-#include <memory>
-*/
 #include <dqrobotics/DQ.h>
 #include <dqrobotics/interfaces/vrep/DQ_VrepInterface.h>
 #include <dqrobotics/robot_control/DQ_PseudoinverseController.h>
