@@ -18,7 +18,7 @@ Contributors:
 Instructions:
 Prerequisites:
 - dqrobotics
-- dqrobotics-vrep-interface
+- dqrobotics-interface-vrep
 
 1) Open the CoppeliaSim scene joint_velocity_commands.ttt
 2) Be sure that the Lua script attached to the object DQRoboticsApiCommandServer is updated.
