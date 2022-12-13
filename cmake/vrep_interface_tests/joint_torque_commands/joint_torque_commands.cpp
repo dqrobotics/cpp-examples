@@ -92,7 +92,7 @@ legend('Reference', 'measurement')
 #include <dqrobotics/interfaces/vrep/DQ_VrepInterface.h>
 #include <dqrobotics/robot_modeling/DQ_SerialManipulatorMDH.h>
 #include <Eigen/Dense>
-
+#include <dqrobotics/robots/FrankaEmikaPandaRobot.h>
 
 using namespace Eigen;
 
@@ -111,18 +111,11 @@ int main(void)
 
     //------------------- Robot definition--------------------------
     //---------- Franka Emika Panda serial manipulator
-    Matrix<double,5,7> franka_mdh(5,7);
-    franka_mdh <<  0,    0,     0,         0,      0,      0,     0,
-                 0.333, 0, 3.16e-1,       0, 3.84e-1,     0,     0,
-                  0,    0,     0,   8.25e-2, -8.25e-2,    0, 8.8e-2,
-                  0, -M_PI_2, M_PI_2, M_PI_2, -M_PI_2, M_PI_2, M_PI_2,
-                  0,    0,      0,        0,      0,      0,     0;
-    DQ_SerialManipulatorMDH franka(franka_mdh);
-    DQ robot_base = 1 + E_ * 0.5 * DQ(0, 0.0413, 0, 0);
-    franka.set_base_frame(robot_base);
-    franka.set_reference_frame(robot_base);
-    DQ robot_effector = 1+E_*0.5*k_*1.07e-1;
-    franka.set_effector(robot_effector);
+    DQ_SerialManipulatorMDH franka = FrankaEmikaPandaRobot::kinematics();
+
+    //Update the base of the robot from CoppeliaSim
+    DQ new_base_robot = (franka.get_base_frame())*vi.get_object_pose("Franka")*(1+0.5*E_*(-0.07*k_));
+    franka.set_reference_frame(new_base_robot);
     //---------------------------------------------------------------
 
     std::vector<std::string> jointnames = {"Franka_joint1", "Franka_joint2",
