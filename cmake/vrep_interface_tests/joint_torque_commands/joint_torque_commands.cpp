@@ -84,15 +84,12 @@ legend('Reference', 'measurement')
 
 */
 
-#include <iostream>
-#include <string>
-#include <thread>
-#include <fstream>
 #include <dqrobotics/DQ.h>
 #include <dqrobotics/interfaces/vrep/DQ_VrepInterface.h>
-#include <dqrobotics/robot_modeling/DQ_SerialManipulatorMDH.h>
-#include <Eigen/Dense>
 #include <dqrobotics/robots/FrankaEmikaPandaRobot.h>
+#include <dqrobotics/robot_control/DQ_PseudoinverseController.h>
+#include <thread>
+#include <fstream>
 
 using namespace Eigen;
 
