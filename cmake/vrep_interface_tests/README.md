@@ -6,6 +6,7 @@
 ```shell
 sudo apt-get install libdqrobotics-interface-vrep
 ```
+3. Check out the [documentation](https://dqroboticsgithubio.readthedocs.io/en/latest/installation/python.html) about the interface with CoppeliaSim. Some known issues (**not related to DQ Robotics**) are addressed.
 
 ![req](https://user-images.githubusercontent.com/23158313/158897518-a61bf680-9836-4aa8-9f66-95c05fd35f90.gif)
 

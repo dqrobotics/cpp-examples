@@ -18,23 +18,21 @@ Contributors:
 Instructions:
 Prerequisites:
 - dqrobotics
-- dqrobotics-vrep-interface
+- dqrobotics-interface-vrep
+- dqrobotics-interface-qpoases
 
 1) Open the CoppeliaSim scene test_dynamic_conic_constraint.ttt
 2) Compile, run and enjoy!
 */
 
-#include <iostream>
-#include <Eigen/Dense>
 #include <dqrobotics/DQ.h>
 #include <dqrobotics/interfaces/vrep/DQ_VrepInterface.h>
-#include <thread>
-#include <dqrobotics/robot_modeling/DQ_SerialManipulatorMDH.h>
-#include <dqrobotics/solvers/DQ_QPOASESSolver.h>
+#include <dqrobotics/robots/FrankaEmikaPandaRobot.h>
 #include <dqrobotics/robot_control/DQ_ClassicQPController.h>
+#include <dqrobotics/solvers/DQ_QPOASESSolver.h>
 #include <dqrobotics/utils/DQ_Constants.h>
 #include <dqrobotics/utils/DQ_Geometry.h>
-#include <dqrobotics/robots/FrankaEmikaPandaRobot.h>
+#include <thread>
 
 
 using namespace Eigen;
@@ -60,26 +58,15 @@ int main()
 
 
     //------------------- Robot definition--------------------------
-    DQ_SerialManipulatorMDH franka = FrankaEmikaPandaRobot::kinematics();
-
+    auto robot = std::make_shared<DQ_SerialManipulatorMDH>(FrankaEmikaPandaRobot::kinematics());
     //Update the base of the robot from CoppeliaSim
-    DQ new_base_robot;
-    for (int i=0; i<=10;i++)
-    {
-       new_base_robot = (franka.get_base_frame())*vi.get_object_pose("Franka")*(1+0.5*E_*(-0.07*k_));
-    }
-
-    franka.set_base_frame(new_base_robot);
-    franka.set_reference_frame(new_base_robot);
-
+    DQ new_base_robot = (robot->get_base_frame())*vi.get_object_pose("Franka")*(1+0.5*E_*(-0.07*k_));
+    robot->set_reference_frame(new_base_robot);
+    //--------------------------------------------------------------
+    auto solver = std::make_shared<DQ_QPOASESSolver>(DQ_QPOASESSolver());
     //--------------------------------------------------------------
     //------------------- Controller definition---------------------
-    DQ_QPOASESSolver solver;
-    DQ_ClassicQPController controller
-        (std::static_pointer_cast<DQ_Kinematics>
-        (std::make_shared<DQ_SerialManipulatorMDH>(franka)),
-         std::static_pointer_cast<DQ_QuadraticProgrammingSolver>
-        (std::make_shared<DQ_QPOASESSolver>(solver)));
+    DQ_ClassicQPController controller(robot, solver);
 
     controller.set_gain(0.5);
     controller.set_damping(0.1);
@@ -104,8 +91,8 @@ int main()
         DQ r_dyn_dot = (-sin(phi_t/2)  + i_*cos(phi_t/2))*(phi_t_dot/2);
 
         VectorXd q = vi.get_joint_positions(jointnames);
-        DQ x = franka.fkm(q);
-        MatrixXd J = franka.pose_jacobian(q);
+        DQ x = robot->fkm(q);
+        MatrixXd J = robot->pose_jacobian(q);
 
         // DQ workspace_pose is a unit dual quaternion that represent the position and orientation of a frame rigidly attached
         // to the dynamic workspace line.

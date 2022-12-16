@@ -15,20 +15,17 @@ Contributors:
 - Juan Jose Quiroz Omana (juanjqo@g.ecc.u-tokyo.ac.jp)
 */
 
-#include <iostream>
-#include <Eigen/Dense>
 #include <dqrobotics/DQ.h>
-#include <thread>
-#include <dqrobotics/robot_control/DQ_ClassicQPController.h>
-#include <dqrobotics/utils/DQ_Constants.h>
-#include <dqrobotics/utils/DQ_Geometry.h>
+#include <dqrobotics/interfaces/vrep/DQ_VrepInterface.h>
+#include <dqrobotics/robot_control/DQ_PseudoinverseController.h>
 #include <dqrobotics/robot_modeling/DQ_HolonomicBase.h>
 #include <dqrobotics/robot_modeling/DQ_SerialManipulatorDH.h>
 #include <dqrobotics/robot_modeling/DQ_SerialManipulatorMDH.h>
-#include<dqrobotics/robot_modeling/DQ_DifferentialDriveRobot.h>
 #include <dqrobotics/robots/KukaLw4Robot.h>
-#include <vector>
-#include <memory>
+#include<dqrobotics/robot_modeling/DQ_DifferentialDriveRobot.h>
+#include <dqrobotics/robots/FrankaEmikaPandaRobot.h>
+#include <thread>
+#include <dqrobotics/utils/DQ_Constants.h>
 
 
 using namespace Eigen;
@@ -173,48 +170,27 @@ int main()
 
 
     //------------Test for DQ_DifferentialDriveRobot()-----------------//
-    bool resultdr = check_pose_jacobian_derivative
-                  (std::static_pointer_cast<DQ_Kinematics>
-                  (std::make_shared<DQ_DifferentialDriveRobot>(DQ_DifferentialDriveRobot(0.3, 0.01))),
-                  iterations, T, threshold);
+    auto diff_base = std::make_shared<DQ_DifferentialDriveRobot>(DQ_DifferentialDriveRobot(0.3, 0.01));
+    bool resultdr = check_pose_jacobian_derivative(diff_base,iterations, T, threshold);
     std::cout<<"is pose_jacobian_derivative() working for the "
                "DQ_DifferentialDriveRobot()? "<<map_return(resultdr)<<std::endl;
 
     //------------Test for DQ_HolonomicBase()------------------------//
-    bool result = check_pose_jacobian_derivative
-                  (std::static_pointer_cast<DQ_Kinematics>
-                  (std::make_shared<DQ_HolonomicBase>(DQ_HolonomicBase())),
-                  iterations, T, threshold);
+    auto base = std::make_shared<DQ_HolonomicBase>(DQ_HolonomicBase());
+    bool result = check_pose_jacobian_derivative(base,iterations, T, threshold);
     std::cout<<"is pose_jacobian_derivative() working for the "
                "DQ_HolonomicBase()?        "<<map_return(result)<<std::endl;
 
     //------------Test for DQ_SerialManipulatorDH()------------------------//
-    bool resultdh = check_pose_jacobian_derivative
-                  (std::static_pointer_cast<DQ_Kinematics>
-                  (std::make_shared<DQ_SerialManipulatorDH>(KukaLw4Robot::kinematics())),
-                  iterations, T, threshold);
+    auto kuka = std::make_shared<DQ_SerialManipulatorDH>(KukaLw4Robot::kinematics());
+    bool resultdh = check_pose_jacobian_derivative(kuka,iterations, T, threshold);
     std::cout<<"is pose_jacobian_derivative() working for the "
                "DQ_SerialManipulatorDH()?  "<<map_return(resultdh)<<std::endl;
 
 
     //------------Test for DQ_SerialManipulatorMDH()------------------------//
-    Eigen::Matrix<double,5,7> franka_mdh(5,7);
-    franka_mdh <<  0,    0,     0,         0,      0,      0,     0,
-                 0.333, 0, 3.16e-1,       0, 3.84e-1,     0,     0,
-                  0,    0,     0,   8.25e-2, -8.25e-2,    0, 8.8e-2,
-                  0, -M_PI_2, M_PI_2, M_PI_2, -M_PI_2, M_PI_2, M_PI_2,
-                  0,    0,      0,        0,      0,      0,     0;
-    DQ_SerialManipulatorMDH franka(franka_mdh);
-    DQ robot_base = 1 + E_ * 0.5 * DQ(0, 0.0413, 0, 0);
-    franka.set_base_frame(robot_base);
-    franka.set_reference_frame(robot_base);
-    DQ robot_effector = 1+E_*0.5*k_*1.07e-1;
-    franka.set_effector(robot_effector);
-
-    bool resultmdh = check_pose_jacobian_derivative
-                  (std::static_pointer_cast<DQ_Kinematics>
-                  (std::make_shared<DQ_SerialManipulatorMDH>(franka)),
-                  iterations, T, threshold);
+    auto franka = std::make_shared<DQ_SerialManipulatorMDH>(FrankaEmikaPandaRobot::kinematics());
+    bool resultmdh = check_pose_jacobian_derivative(franka,iterations, T, threshold);
     std::cout<<"is pose_jacobian_derivative() working for the "
                "DQ_SerialManipulatorMDH()? "<<map_return(resultmdh)<<std::endl;
 

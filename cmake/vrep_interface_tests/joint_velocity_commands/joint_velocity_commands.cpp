@@ -18,7 +18,7 @@ Contributors:
 Instructions:
 Prerequisites:
 - dqrobotics
-- dqrobotics-vrep-interface
+- dqrobotics-interface-vrep
 
 1) Open the CoppeliaSim scene joint_velocity_commands.ttt
 2) Be sure that the Lua script attached to the object DQRoboticsApiCommandServer is updated.
@@ -26,17 +26,12 @@ Prerequisites:
 3) Compile, run and enjoy!
 */
 
-#include <iostream>
-#include <string>
-#include <thread>
 #include <dqrobotics/DQ.h>
 #include <dqrobotics/interfaces/vrep/DQ_VrepInterface.h>
-#include <dqrobotics/utils/DQ_LinearAlgebra.h>
-#include <dqrobotics/utils/DQ_Constants.h>
-#include <Eigen/Dense>
-#include <dqrobotics/robot_modeling/DQ_SerialManipulatorDH.h>
+#include <dqrobotics/robots/FrankaEmikaPandaRobot.h>
 #include <dqrobotics/robot_control/DQ_PseudoinverseController.h>
-#include <dqrobotics/robot_control/DQ_KinematicController.h>
+#include <thread>
+
 
 using namespace Eigen;
 
@@ -49,24 +44,21 @@ int main(void)
     vi.start_simulation();
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
+    std::vector<std::string>jointnames = {"Franka_joint1", "Franka_joint2",
+                                           "Franka_joint3", "Franka_joint4",
+                                           "Franka_joint5", "Franka_joint6",
+                                           "Franka_joint7"};
+
     // robot definition
-    Matrix<double, 5, 7> robot_dh;
-    robot_dh << 0, 0, 0, 0, 0, 0, 0,                           // theta
-                0.333, 0, 3.16e-1, 0, 3.84e-1, 0, 1.07e-1,     // d
-                0, 0, 8.25e-2, -8.25e-2, 0, 8.8e-2, 0,         // a
-                -M_PI_2, M_PI_2, M_PI_2, -M_PI_2, M_PI_2, M_PI_2, 0, // alpha
-                 0,0,0,0,0,0,0;
-    DQ_SerialManipulatorDH franka(robot_dh);
-    DQ robot_base = 1 + E_ * 0.5 * DQ(0, 0.0413, 0, 0);
-    franka.set_base_frame(robot_base);
-    franka.set_reference_frame(robot_base);
+    auto robot = std::make_shared<DQ_SerialManipulatorMDH>
+            (FrankaEmikaPandaRobot::kinematics());
 
-    std::vector<std::string> jointnames = {"Franka_joint1", "Franka_joint2",
-                                            "Franka_joint3", "Franka_joint4",
-                                            "Franka_joint5", "Franka_joint6",
-                                            "Franka_joint7"};
+    //Update the base of the robot from CoppeliaSim
+    DQ new_base_robot = (robot->get_base_frame())*vi.get_object_pose("Franka")*(1+0.5*E_*(-0.07*k_));
+    robot->set_reference_frame(new_base_robot);
 
-    DQ_PseudoinverseController controller(&franka);
+
+    DQ_PseudoinverseController controller(robot);
     controller.set_gain(0.5);
     controller.set_damping(0.05);
     controller.set_control_objective(DQ_robotics::Translation);
@@ -78,17 +70,13 @@ int main(void)
     int i=0;
     while (not controller.system_reached_stable_region())
     {
-
         VectorXd q = vi.get_joint_positions(jointnames);
-        vi.set_object_pose("ReferenceFrame", franka.fkm(q));
+        vi.set_object_pose("ReferenceFrame", robot->fkm(q));
         VectorXd u = controller.compute_setpoint_control_signal(q, vec4(xdesired.translation()));
-        std::cout << "error: " <<controller.get_last_error_signal().norm()<<" Iteration: "<<i<<std::endl;
-        std::cout<< "Is stable?: "<<controller.system_reached_stable_region()<<std::endl;
-
+        std::cout << "task error: " <<controller.get_last_error_signal().norm()
+                  <<" Iteration: "<<i<<std::endl;
         vi.set_joint_target_velocities(jointnames, u);
         vi.trigger_next_simulation_step();
-
-        std::cout<< "q_dot: "<<vi.get_joint_velocities(jointnames)<<std::endl;
         i++;
 
     }
