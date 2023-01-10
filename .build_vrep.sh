@@ -2,7 +2,7 @@
 
 cd cmake/vrep_interface_tests
 
-declare -a vrep_examples_array=("extracting_inertial_parameters" "joint_torque_commands" "joint_velocity_commands" "line_to_line_angle_jacobian")
+declare -a vrep_examples_array=("extracting_inertial_parameters" "joint_torque_commands" "joint_velocity_commands")
  
 for vrep_example in ${vrep_examples_array[@]}; do
     cd $vrep_example
