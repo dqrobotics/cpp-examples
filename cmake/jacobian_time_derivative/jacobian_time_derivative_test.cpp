@@ -13,18 +13,19 @@ This file is part of DQ Robotics.
     along with DQ Robotics.  If not, see <http://www.gnu.org/licenses/>.
 Contributors:
 - Juan Jose Quiroz Omana (juanjqo@g.ecc.u-tokyo.ac.jp)
+
+- Murilo M. Marinho (murilomarinho@ieee.org)
+Removed includes for thread and DQ_VrepInterface.
 */
 
 #include <dqrobotics/DQ.h>
-#include <dqrobotics/interfaces/vrep/DQ_VrepInterface.h>
 #include <dqrobotics/robot_control/DQ_PseudoinverseController.h>
 #include <dqrobotics/robot_modeling/DQ_HolonomicBase.h>
 #include <dqrobotics/robot_modeling/DQ_SerialManipulatorDH.h>
 #include <dqrobotics/robot_modeling/DQ_SerialManipulatorMDH.h>
 #include <dqrobotics/robots/KukaLw4Robot.h>
-#include<dqrobotics/robot_modeling/DQ_DifferentialDriveRobot.h>
+#include <dqrobotics/robot_modeling/DQ_DifferentialDriveRobot.h>
 #include <dqrobotics/robots/FrankaEmikaPandaRobot.h>
-#include <thread>
 #include <dqrobotics/utils/DQ_Constants.h>
 
 
