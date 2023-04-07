@@ -16,7 +16,10 @@ Contributors:
 
 - Murilo M. Marinho (murilomarinho@ieee.org)
 Removed includes for thread and DQ_VrepInterface.
+Added include for vector.
 */
+
+#include <vector>
 
 #include <dqrobotics/DQ.h>
 #include <dqrobotics/robot_control/DQ_PseudoinverseController.h>
