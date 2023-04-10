@@ -1,5 +1,5 @@
 /**
-(C) Copyright 2022 DQ Robotics Developers
+(C) Copyright 2022-2023 DQ Robotics Developers
 This file is part of DQ Robotics.
     DQ Robotics is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
@@ -15,8 +15,9 @@ Contributors:
 - Juan Jose Quiroz Omana (juanjqo@g.ecc.u-tokyo.ac.jp)
 
 - Murilo M. Marinho (murilomarinho@ieee.org)
-Removed includes for thread and DQ_VrepInterface.
-Added include for vector.
+    - Removed includes for thread and DQ_VrepInterface.
+    - Added include for vector.
+    - Forward declared methods to fix the compilation warnings.
 */
 
 #include <vector>
@@ -34,6 +35,87 @@ Added include for vector.
 
 using namespace Eigen;
 using namespace DQ_robotics;
+
+
+std::vector<MatrixXd> numerical_differentiation(const std::vector<Eigen::MatrixXd>& J,
+                                                const double& T);
+
+
+bool check_pose_jacobian_derivative(const std::shared_ptr<DQ_Kinematics>& robot,
+                                    int& iterations,
+                                    double& T,
+                                    double& threshold);
+
+std::string map_return(const bool& value);
+
+
+int main()
+{
+    double T       = 1e-4;
+    int iterations = 1500;
+    double threshold = 1e-10;
+
+    //------------test the numerical differentiation implementation----//
+    double t = 0;
+    double w = 2*pi;
+    std::vector<Eigen::MatrixXd> M;
+    std::vector<Eigen::MatrixXd> M_dot;
+    std::vector<Eigen::MatrixXd> Numerical_M_dot;
+    bool accurate_computation = true;
+    for(int i=0;i<iterations;i++)
+    {
+        t = i*T;
+        double theta = sin(w*t);
+        double theta_dot = w*cos(w*t);
+        M.push_back((MatrixXd(1,1) << theta).finished());
+        M_dot.push_back((MatrixXd(1,1) << theta_dot).finished());
+    }
+    Numerical_M_dot = numerical_differentiation(M, T);
+    for(int i=0;i<iterations;i++)
+    {
+       auto numerical_error = M_dot[i] - Numerical_M_dot[i];
+       double     max_coeff = numerical_error.maxCoeff();
+       //std::cout<<"Error: "<<numerical_error.maxCoeff()<<std::endl;
+       if (i>2 && i<iterations-2) //discard the first two and last two values.
+       {
+           if(std::abs(max_coeff) > threshold)
+           {
+                accurate_computation = false;
+           }
+       }
+    }
+    std::cout<<"is numerical_differentiation() working? "
+            <<map_return(accurate_computation)<<std::endl;
+
+
+    //------------Test for DQ_DifferentialDriveRobot()-----------------//
+    auto diff_base = std::make_shared<DQ_DifferentialDriveRobot>(DQ_DifferentialDriveRobot(0.3, 0.01));
+    bool resultdr = check_pose_jacobian_derivative(diff_base,iterations, T, threshold);
+    std::cout<<"is pose_jacobian_derivative() working for the "
+               "DQ_DifferentialDriveRobot()? "<<map_return(resultdr)<<std::endl;
+
+    //------------Test for DQ_HolonomicBase()------------------------//
+    auto base = std::make_shared<DQ_HolonomicBase>(DQ_HolonomicBase());
+    bool result = check_pose_jacobian_derivative(base,iterations, T, threshold);
+    std::cout<<"is pose_jacobian_derivative() working for the "
+               "DQ_HolonomicBase()?        "<<map_return(result)<<std::endl;
+
+    //------------Test for DQ_SerialManipulatorDH()------------------------//
+    auto kuka = std::make_shared<DQ_SerialManipulatorDH>(KukaLw4Robot::kinematics());
+    bool resultdh = check_pose_jacobian_derivative(kuka,iterations, T, threshold);
+    std::cout<<"is pose_jacobian_derivative() working for the "
+               "DQ_SerialManipulatorDH()?  "<<map_return(resultdh)<<std::endl;
+
+
+    //------------Test for DQ_SerialManipulatorMDH()------------------------//
+    auto franka = std::make_shared<DQ_SerialManipulatorMDH>(FrankaEmikaPandaRobot::kinematics());
+    bool resultmdh = check_pose_jacobian_derivative(franka,iterations, T, threshold);
+    std::cout<<"is pose_jacobian_derivative() working for the "
+               "DQ_SerialManipulatorMDH()? "<<map_return(resultmdh)<<std::endl;
+
+
+    return 0;
+}
 
 
 /**
@@ -131,73 +213,4 @@ std::string map_return(const bool& value)
         msg = "No.";
     }
     return msg;
-}
-
-
-int main()
-{
-    double T       = 1e-4;
-    int iterations = 1500;
-    double threshold = 1e-10;
-
-    //------------test the numerical differentiation implementation----//
-    double t = 0;
-    double w = 2*pi;
-    std::vector<Eigen::MatrixXd> M;
-    std::vector<Eigen::MatrixXd> M_dot;
-    std::vector<Eigen::MatrixXd> Numerical_M_dot;
-    bool accurate_computation = true;
-    for(int i=0;i<iterations;i++)
-    {
-        t = i*T;
-        double theta = sin(w*t);
-        double theta_dot = w*cos(w*t);
-        M.push_back((MatrixXd(1,1) << theta).finished());
-        M_dot.push_back((MatrixXd(1,1) << theta_dot).finished());
-    }
-    Numerical_M_dot = numerical_differentiation(M, T);
-    for(int i=0;i<iterations;i++)
-    {
-       auto numerical_error = M_dot[i] - Numerical_M_dot[i];
-       double     max_coeff = numerical_error.maxCoeff();
-       //std::cout<<"Error: "<<numerical_error.maxCoeff()<<std::endl;
-       if (i>2 && i<iterations-2) //discard the first two and last two values.
-       {
-           if(std::abs(max_coeff) > threshold)
-           {
-                accurate_computation = false;
-           }
-       }
-    }
-    std::cout<<"is numerical_differentiation() working? "
-            <<map_return(accurate_computation)<<std::endl;
-
-
-    //------------Test for DQ_DifferentialDriveRobot()-----------------//
-    auto diff_base = std::make_shared<DQ_DifferentialDriveRobot>(DQ_DifferentialDriveRobot(0.3, 0.01));
-    bool resultdr = check_pose_jacobian_derivative(diff_base,iterations, T, threshold);
-    std::cout<<"is pose_jacobian_derivative() working for the "
-               "DQ_DifferentialDriveRobot()? "<<map_return(resultdr)<<std::endl;
-
-    //------------Test for DQ_HolonomicBase()------------------------//
-    auto base = std::make_shared<DQ_HolonomicBase>(DQ_HolonomicBase());
-    bool result = check_pose_jacobian_derivative(base,iterations, T, threshold);
-    std::cout<<"is pose_jacobian_derivative() working for the "
-               "DQ_HolonomicBase()?        "<<map_return(result)<<std::endl;
-
-    //------------Test for DQ_SerialManipulatorDH()------------------------//
-    auto kuka = std::make_shared<DQ_SerialManipulatorDH>(KukaLw4Robot::kinematics());
-    bool resultdh = check_pose_jacobian_derivative(kuka,iterations, T, threshold);
-    std::cout<<"is pose_jacobian_derivative() working for the "
-               "DQ_SerialManipulatorDH()?  "<<map_return(resultdh)<<std::endl;
-
-
-    //------------Test for DQ_SerialManipulatorMDH()------------------------//
-    auto franka = std::make_shared<DQ_SerialManipulatorMDH>(FrankaEmikaPandaRobot::kinematics());
-    bool resultmdh = check_pose_jacobian_derivative(franka,iterations, T, threshold);
-    std::cout<<"is pose_jacobian_derivative() working for the "
-               "DQ_SerialManipulatorMDH()? "<<map_return(resultmdh)<<std::endl;
-
-
-    return 0;
 }
