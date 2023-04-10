@@ -11,8 +11,10 @@ This file is part of DQ Robotics.
     GNU Lesser General Public License for more details.
     You should have received a copy of the GNU Lesser General Public License
     along with DQ Robotics.  If not, see <http://www.gnu.org/licenses/>.
+    
 Contributors:
 - Juan Jose Quiroz Omana (juanjqo@g.ecc.u-tokyo.ac.jp)
+    - Initial implementation
 
 - Murilo M. Marinho (murilomarinho@ieee.org)
     - Removed includes for thread and DQ_VrepInterface.
