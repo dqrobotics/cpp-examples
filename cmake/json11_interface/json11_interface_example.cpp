@@ -34,16 +34,16 @@ void test_dq_serial_manipulator(DQ_SerialManipulator* dqsm, VectorXi angle_mask)
 {
     //"lower_q_limit":[-1 ,-2 ,-3 ,-4 ,-5 ,-6 ,-7 ,-8 ,-9 ],
     VectorXd lower_q_limit_check(9); lower_q_limit_check<<-1 ,-2 ,-3 ,-4 ,-5 ,-6 ,-7 ,-8 ,-9;
-    assert((dqsm->get_lower_q_limit()==deg2rad_with_mask(lower_q_limit_check,angle_mask)));
+    assert((dqsm->get_lower_q_limit()==deg2rad_with_mask(lower_q_limit_check.head(dqsm->get_dim_configuration_space()),angle_mask)));
     //"upper_q_limit":[9 ,8 ,7 ,6 ,5 ,4 ,3 ,2 ,1 ],
     VectorXd upper_q_limit_check(9); upper_q_limit_check<<9 ,8 ,7 ,6 ,5 ,4 ,3 ,2 ,1;
-    assert((dqsm->get_upper_q_limit()==deg2rad_with_mask(upper_q_limit_check,angle_mask)));
+    assert((dqsm->get_upper_q_limit()==deg2rad_with_mask(upper_q_limit_check.head(dqsm->get_dim_configuration_space()),angle_mask)));
     //"lower_q_dot_limit":[-9, -8, -7, -6, -5, -4, -3, -2, -1],
     VectorXd lower_q_dot_limit_check(9); lower_q_dot_limit_check<<-9, -8, -7, -6, -5, -4, -3, -2, -1;
-    assert((dqsm->get_lower_q_dot_limit()==deg2rad_with_mask(lower_q_dot_limit_check,angle_mask)));
+    assert((dqsm->get_lower_q_dot_limit()==deg2rad_with_mask(lower_q_dot_limit_check.head(dqsm->get_dim_configuration_space()),angle_mask)));
     //"upper_q_dot_limit":[1, 2, 3, 4, 5, 6, 7, 8, 9],
     VectorXd upper_q_dot_limit_check(9); upper_q_dot_limit_check<<1, 2, 3, 4, 5, 6, 7, 8, 9;
-    assert((dqsm->get_upper_q_dot_limit()==deg2rad_with_mask(upper_q_dot_limit_check,angle_mask)));
+    assert((dqsm->get_upper_q_dot_limit()==deg2rad_with_mask(upper_q_dot_limit_check.head(dqsm->get_dim_configuration_space()),angle_mask)));
     //"effector":[0.0,1.0,0.0,0.0],
     DQ effector_check = i_;
     assert(dqsm->get_effector()==effector_check);
