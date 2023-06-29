@@ -1,0 +1,3 @@
+[submodule "cmake/papers_with_code/tro2022_adaptivecontrol_marinho_adorno"]
+	path = cmake/papers_with_code/tro2022_adaptivecontrol_marinho_adorno
+	url = https://github.com/mmmarinho/tro2022_adaptivecontrol.git
