@@ -75,7 +75,7 @@ void test_equality(void) {
 
     for (int problem_size = 5; problem_size <= 10; problem_size += 1) {
         qpoases_solver = DQ_QPOASESSolver();
-        auto tolerance = qpoases_solver.get_equality_constraints_tolerance();
+        tolerance = qpoases_solver.get_equality_constraints_tolerance();
         qpoases_solver.set_equality_constraints_tolerance(tolerance);
 
         MatrixXd H = MatrixXd::Identity(problem_size, problem_size);
@@ -90,6 +90,7 @@ void test_equality(void) {
             MatrixXd Aeq = mlp.asDiagonal();
             VectorXd beq = VectorXd::Random(problem_size);
             auto out = qpoases_solver.solve_quadratic_program(H, f, A, b, Aeq, beq);
+            // just plain tolerance is too tight for the check
             if (!are_vectors_equal(beq, Aeq * out, tolerance+DQ_threshold)) {
                 std::cout << "Solver Failed equality check on mlp: " << mlp.transpose() <<
                           std::endl << "beq: " << beq.transpose() <<
