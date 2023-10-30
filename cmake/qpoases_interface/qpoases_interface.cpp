@@ -18,6 +18,9 @@ This file is part of DQ Robotics.
 
 Contributors:
 - Murilo M. Marinho (murilo@g.ecc.u-tokyo.ac.jp)
+    - initial implementation
+- Quentin Lin (qlin1806@g.ecc.u-tokyo.ac.jp)
+    - added check for equality constraints
 */
 
 #include <iostream>
