@@ -83,7 +83,6 @@ bool check_if_vectors_equal(const Eigen::VectorXd &a, const Eigen::VectorXd &b, 
 void test_equality(void) {
     DQ_QPOASESSolver qpoases_solver;
     auto tolerance = qpoases_solver.get_equality_constraints_tolerance();
-    tolerance = qpoases_solver.get_equality_constraints_tolerance();
     std::cout << "current equality tolerance: " << tolerance << std::endl;
     qpoases_solver.set_equality_constraints_tolerance(tolerance);
 
