@@ -61,52 +61,31 @@ int main()
 template<typename T>
 void perform_tests(const std::shared_ptr<T>& robot, const MatrixXd& dh_matrix, const std::string& msg)
 {
+    std::vector<DQ_ParameterDH> parameters =
+        {DQ_ParameterDH::THETA, DQ_ParameterDH::D, DQ_ParameterDH::A, DQ_ParameterDH::ALPHA};
+
+    // Test get_parameter
     for (int i=0;i<robot->get_dim_configuration_space();i++)
-    {
-        if (dh_matrix(0,i) != robot->get_parameter(DQ_SerialManipulator::DQ_ParameterDH::THETA, i))
-            throw std::runtime_error(msg + " Error in get_parameter THETA");
-        if (dh_matrix(1,i) != robot->get_parameter(DQ_SerialManipulator::DQ_ParameterDH::D, i))
-            throw std::runtime_error(msg +" Error in get_parameter D");
-        if (dh_matrix(2,i) != robot->get_parameter(DQ_SerialManipulator::DQ_ParameterDH::A, i))
-            throw std::runtime_error(msg + " Error in get_parameter A");
-        if (dh_matrix(3,i) != robot->get_parameter(DQ_SerialManipulator::DQ_ParameterDH::ALPHA, i))
-            throw std::runtime_error(msg + " Error in get_parameter ALPHA");
-    }
+        for(int j=0;j<=3;j++)
+            assert(dh_matrix(j,i) == robot->get_parameter(parameters.at(j), i));
 
-    if (dh_matrix.row(0).transpose() != robot->get_parameters(DQ_SerialManipulator::DQ_ParameterDH::THETA))
-        throw std::runtime_error(msg + " Error in get_parameters THETA");
-    if (dh_matrix.row(1).transpose() != robot->get_parameters(DQ_SerialManipulator::DQ_ParameterDH::D))
-        throw std::runtime_error(msg + " Error in get_parameters D");
-    if (dh_matrix.row(2).transpose() != robot->get_parameters(DQ_SerialManipulator::DQ_ParameterDH::A))
-        throw std::runtime_error(msg + " Error in get_parameters A");
-    if (dh_matrix.row(3).transpose() != robot->get_parameters(DQ_SerialManipulator::DQ_ParameterDH::ALPHA))
-        throw std::runtime_error(msg + " Error in get_parameters ALPHA");
-
-    robot->set_parameters(DQ_SerialManipulator::DQ_ParameterDH::THETA, dh_matrix.row(0)/10);
-    robot->set_parameters(DQ_SerialManipulator::DQ_ParameterDH::D, dh_matrix.row(1)/10);
-    robot->set_parameters(DQ_SerialManipulator::DQ_ParameterDH::A, dh_matrix.row(2)/10);
-    robot->set_parameters(DQ_SerialManipulator::DQ_ParameterDH::ALPHA, dh_matrix.row(3)/10);
-
+    // Test get_parameters
     for (int i=0;i<robot->get_dim_configuration_space();i++)
-    {
-        if (dh_matrix(0,i)/10 != robot->get_parameter(DQ_SerialManipulator::DQ_ParameterDH::THETA, i))
-            throw std::runtime_error(msg + " Error in set_parameter THETA");
-        if (dh_matrix(1,i)/10 != robot->get_parameter(DQ_SerialManipulator::DQ_ParameterDH::D, i))
-            throw std::runtime_error(msg + " Error in set_parameter D");
-        if (dh_matrix(2,i)/10 != robot->get_parameter(DQ_SerialManipulator::DQ_ParameterDH::A, i))
-            throw std::runtime_error(msg + " Error in set_parameter A");
-        if (dh_matrix(3,i)/10 != robot->get_parameter(DQ_SerialManipulator::DQ_ParameterDH::ALPHA, i))
-            throw std::runtime_error(msg + "Error in set_parameter ALPHA");
-    }
+        for(int j=0;j<=3;j++)
+            assert(dh_matrix.row(j).transpose() == robot->get_parameters(parameters.at(j)));
 
-    if (dh_matrix.row(0).transpose()/10 != robot->get_parameters(DQ_SerialManipulator::DQ_ParameterDH::THETA))
-        throw std::runtime_error(msg + " Error in get_parameters THETA");
-    if (dh_matrix.row(1).transpose()/10 != robot->get_parameters(DQ_SerialManipulator::DQ_ParameterDH::D))
-        throw std::runtime_error(msg + " Error in get_parameters D");
-    if (dh_matrix.row(2).transpose()/10 != robot->get_parameters(DQ_SerialManipulator::DQ_ParameterDH::A))
-        throw std::runtime_error(msg + " Error in get_parameters A");
-    if (dh_matrix.row(3).transpose()/10 != robot->get_parameters(DQ_SerialManipulator::DQ_ParameterDH::ALPHA))
-        throw std::runtime_error(msg + " Error in get_parameters ALPHA");
+    // Set the new parameters
+    for(int j=0;j<=3;j++)
+        robot->set_parameters(parameters.at(j), dh_matrix.row(j)/10);
+
+    // Test if the new parameters were set correctly using get_parameter
+    for (int i=0;i<robot->get_dim_configuration_space();i++)
+        for(int j=0;j<=3;j++)
+            assert(dh_matrix(j,i)/10 == robot->get_parameter(parameters.at(j), i));
+
+    // Test if the new parameters were set correctly using get_parameters
+    for(int j=0;j<=3;j++)
+        assert(dh_matrix.row(j).transpose()/10  == robot->get_parameters(parameters.at(j)));
 
     std::cout<<msg + ": setters and getters of the DH parameters are working as expected!"<<std::endl;
 }
