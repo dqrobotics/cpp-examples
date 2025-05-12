@@ -64,6 +64,12 @@ void perform_tests(const std::shared_ptr<T>& robot, const MatrixXd& dh_matrix, c
     std::vector<DQ_ParameterDH> parameters =
         {DQ_ParameterDH::THETA, DQ_ParameterDH::D, DQ_ParameterDH::A, DQ_ParameterDH::ALPHA};
 
+    std::vector<std::string> string_parameters =
+        {"THETA", "D", "A", "ALPHA"};
+
+    std::vector<const char*> char_parameters =
+        {"THETA", "D", "A", "ALPHA"};
+
     // Test get_parameter
     for (int i=0;i<robot->get_dim_configuration_space();i++)
         for(int j=0;j<=3;j++)
@@ -76,16 +82,16 @@ void perform_tests(const std::shared_ptr<T>& robot, const MatrixXd& dh_matrix, c
 
     // Set the new parameters
     for(int j=0;j<=3;j++)
-        robot->set_parameters(parameters.at(j), dh_matrix.row(j)/10);
+        robot->set_parameters(string_parameters.at(j), dh_matrix.row(j)/10);
 
     // Test if the new parameters were set correctly using get_parameter
     for (int i=0;i<robot->get_dim_configuration_space();i++)
         for(int j=0;j<=3;j++)
-            assert(dh_matrix(j,i)/10 == robot->get_parameter(parameters.at(j), i));
+            assert(dh_matrix(j,i)/10 == robot->get_parameter(string_parameters.at(j), i));
 
     // Test if the new parameters were set correctly using get_parameters
     for(int j=0;j<=3;j++)
-        assert(dh_matrix.row(j).transpose()/10  == robot->get_parameters(parameters.at(j)));
+        assert(dh_matrix.row(j).transpose()/10  == robot->get_parameters(char_parameters.at(j)));
 
     std::cout<<msg + ": setters and getters of the DH parameters are working as expected!"<<std::endl;
 }
