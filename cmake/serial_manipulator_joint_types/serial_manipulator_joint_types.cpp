@@ -62,8 +62,6 @@ int main()
     perform_tests(mdh_robot, "DQ_SerialManipulatorMDH");
     perform_tests(mdh_robot, "DQ_SerialManipulatorDenso", true);
 
-    dh_robot->set_joint_type(DQ_JointType::HELICAL, 0);
-
     return 0;
 }
 
