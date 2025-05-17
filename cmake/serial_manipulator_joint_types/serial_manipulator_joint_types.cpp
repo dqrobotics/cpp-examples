@@ -34,12 +34,10 @@ using namespace DQ_robotics;
  *                      get_joint_type, and get_joint_types.
  * @param robot  A serial manipulator robot.
  * @param msg    A message to be displayed.
- * @param is_denso Flag used to indicate if the robot is an object of the DQ_SerialManipulatorDenso class.
  */
 template<typename T>
 void perform_tests(const std::shared_ptr<T>& robot,
-                   const std::string& msg,
-                   const bool& is_denso = false
+                   const std::string& msg
                    );
 
 
@@ -60,13 +58,13 @@ int main()
 
     perform_tests(dh_robot,  "DQ_SerialManipulatorDH");
     perform_tests(mdh_robot, "DQ_SerialManipulatorMDH");
-    perform_tests(mdh_robot, "DQ_SerialManipulatorDenso", true);
+    perform_tests(mdh_robot, "DQ_SerialManipulatorDenso");
 
     return 0;
 }
 
 template<typename T>
-void perform_tests(const std::shared_ptr<T>& robot, const std::string& msg, const bool& is_denso){
+void perform_tests(const std::shared_ptr<T>& robot, const std::string& msg){
 
     // Test get_joint_type
     for (int i=0;i<robot->get_dim_configuration_space();i++)
@@ -74,13 +72,14 @@ void perform_tests(const std::shared_ptr<T>& robot, const std::string& msg, cons
 
     // Test set_joint_type and get_joint_types
     DQ_JointType target_joint_type = DQ_JointType::PRISMATIC;
-    if (is_denso)
+    auto denso = std::dynamic_pointer_cast<DQ_SerialManipulatorDenso>(robot);
+    if (denso)
         target_joint_type = DQ_JointType::REVOLUTE;
     for (int i=0;i<robot->get_dim_configuration_space();i++)
         robot->set_joint_type(target_joint_type, i);
 
     DQ_JointType expected_joint_type = DQ_JointType::PRISMATIC;
-    if (is_denso)
+    if (denso)
         expected_joint_type = DQ_JointType::REVOLUTE;
     assert(robot->get_joint_types() ==
            std::vector<DQ_JointType>(robot->get_dim_configuration_space(), expected_joint_type));
