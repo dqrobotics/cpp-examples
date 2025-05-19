@@ -1,21 +1,32 @@
---(C) Copyright 2022 DQ Robotics Developers
---This file is part of DQ Robotics.
+-- (C) Copyright 2011-2024 DQ Robotics Developers
+-- 
+-- This file is part of DQ Robotics.
+-- 
+--     DQ Robotics is free software: you can redistribute it and/or modify
+--     it under the terms of the GNU Lesser General Public License as published by
+--     the Free Software Foundation, either version 3 of the License, or
+--     (at your option) any later version.
+-- 
+--     DQ Robotics is distributed in the hope that it will be useful,
+--     but WITHOUT ANY WARRANTY; without even the implied warranty of
+--     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+--     GNU Lesser General Public License for more details.
+-- 
+--     You should have received a copy of the GNU Lesser General Public License
+--     along with DQ Robotics.  If not, see <http://www.gnu.org/licenses/>.
 --
---   DQ Robotics is free software: you can redistribute it and/or modify
---    it under the terms of the GNU Lesser General Public License as published by
---    the Free Software Foundation, either version 3 of the License, or
---    (at your option) any later version.
---
---    DQ Robotics is distributed in the hope that it will be useful,
---    but WITHOUT ANY WARRANTY; without even the implied warranty of
---    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
---    GNU Lesser General Public License for more details.
---
---    You should have received a copy of the GNU Lesser General Public License
---    along with DQ Robotics.  If not, see <http://www.gnu.org/licenses/>.
+-- DQ Robotics website: dqrobotics.github.io
 
 --Contributors:
 -- Juan Jose Quiroz Omana -  juanjqo@g.ecc.u-tokyo.ac.jp
+--    - Responsible for the original implementation.
+--
+-- Frederico Fernandes Afonso Silva - frederico.silva@ieee.org
+--    - Generalized functions get_center_of_mass() and get_inertia() to allow arbitrary 
+--      reference frames.
+--    - Removed unnused inputs (e.g., inFloats, inStrings, and inBuffer) from functions
+--      get_mass(), get_center_of_mass(), and get_inertia(). Also renamed some of their
+--      variables and added comments to make them clearer.
 
 
 
@@ -45,18 +56,14 @@ end
 
 ----------------------------------------------------------------------------------
 --/**
--- * @brief Returns the mass a handle.
--- * @param inInts. The integer value of the handle. Example: {1} 
--- * @param inFloats. The float input value. Example: {} 
--- * @param inStrings. The string input value. Example: {"absolute_frame"} or {}
--- * @param inBuffer. The buffer input value. Example: {}
--- * @returns the mass
-function get_mass(inInts,inFloats,inStrings,inBuffer)
-    local mass = {}    
-    if #inInts>=1 then    
-        mass =sim.getShapeMass(inInts[1]) 
-        --print(mass)        
-        return {},{mass},{},''              
+-- * @brief Returns the mass of an object.
+-- * @param inInts. The integer value of the object's handle. Example: [1]
+-- * @returns the object's mass
+function get_mass(inInts)
+    if #inInts>=1 then
+        mass = sim.getShapeMass(inInts[1])
+        
+        return {}, {mass}, {}, ''
     end
 end
 ----------------------------------------------------------------------------------
@@ -64,36 +71,76 @@ end
 
 ----------------------------------------------------------------------------------
 --/**
--- * @brief Returns the inertia of a handle.
--- * @param inInts. The integer value of the handle. Example: {1} 
+-- * @brief Returns the inertia tensor of an object.
+-- * @param inInts. The integer value of the object's handle. Optionally, the
+--      handle of the desired reference frame 'df' (the detault is the shape's
+--      reference frame 'sf'). Example: [1] or [1, 2]
 -- * @param inFloats. The float input value. Example: {} 
--- * @param inStrings. The string input value. Example: {"absolute_frame"} or {}
--- * @param inBuffer. The buffer input value. Example: {}
--- * @returns the inertia
-function get_inertia(inInts,inFloats,inStrings,inBuffer)
-      
-    if #inInts>=1 then
-        IM, matrixSFCOM=sim.getShapeInertia(inInts[1])         
-   
+-- * @param inStrings. The name of the desired reference frame. Example: {"absolute_frame"} or {}
+-- * @returns the inertia tensor of the object
+function get_inertia(inInts, inFloats, inStrings)
+    if #inInts==1 then
+        -- Retrieves the inertia tensor in 'sf'
+        I_sf, H_com_sf = sim.getShapeInertia(inInts[1])
+        
         if inStrings[1] == 'absolute_frame' then
-            matrix0_SF=sim.getObjectMatrix(inInts[1],-1) 
-            M = sim.multiplyMatrices(matrix0_SF,matrixSFCOM)        
-            I= {{IM[1],IM[2],IM[3]},
-                {IM[4],IM[5],IM[6]},
-                {IM[7],IM[8],IM[9]}}        
-            R_0_COM = {{M[1],M[2],M[3]},
-                       {M[5],M[6],M[7]},
-                       {M[9],M[10],M[11]}}
-            R_0_COM_T = transpose(R_0_COM)            
-            RIR_T = mat_mult(mat_mult(R_0_COM,I), R_0_COM_T)
-            RIR_T_v = {RIR_T[1][1], RIR_T[1][2], RIR_T[1][3],
-                       RIR_T[2][1], RIR_T[2][2], RIR_T[2][3],
-                       RIR_T[3][1], RIR_T[3][2], RIR_T[3][3]}
-            resultInertiaMatrix=RIR_T_v
+            -- Retrieves the homogeneous transformation matrix between 'sf' and 'absolute_frame'
+            H_sf_0 = sim.getObjectMatrix(inInts[1], -1)
+
+            -- Expresses the center of mass in 'absolute_frame'
+            H_com_0 = sim.multiplyMatrices(H_sf_0, H_com_sf)
+
+            -- Formats I_sf for LUA matrix multiplication
+            I_lua = {{I_sf[1],I_sf[2],I_sf[3]},
+                     {I_sf[4],I_sf[5],I_sf[6]},
+                     {I_sf[7],I_sf[8],I_sf[9]}}
+
+            -- Retrieves the rotation matrix from H_com_0
+            R_com_0 = {{H_com_0[1],H_com_0[2], H_com_0[3]},
+                       {H_com_0[5],H_com_0[6], H_com_0[7]},
+                       {H_com_0[9],H_com_0[10],H_com_0[11]}}
+
+            -- Expresses the inertia tensor in 'absolute_frame' (R*I*R^T)
+            I_0_lua = mat_mult(mat_mult(R_com_0, I_lua), transpose(R_com_0))
+
+            -- Formats I_0_lua for proper return (as a 1x9 vector)
+            I_0 = {I_0_lua[1][1], I_0_lua[1][2], I_0_lua[1][3],
+                   I_0_lua[2][1], I_0_lua[2][2], I_0_lua[2][3],
+                   I_0_lua[3][1], I_0_lua[3][2], I_0_lua[3][3]}
+            
+            return {}, I_0, {}, ''
         else
-            resultInertiaMatrix=IM
-        end      
-        return {},resultInertiaMatrix,{},''              
+            return {}, I_sf, {}, ''
+        end
+    elseif #inInts==2 then
+        -- Retrieves the inertia tensor and the center of mass in 'sf'
+        I_sf, H_com_sf = sim.getShapeInertia(inInts[1])
+        
+        -- Retrieves the homogeneous transformation matrix between 'sf' and 'df'
+        H_sf_df = sim.getObjectMatrix(inInts[1], inInts[2])
+        
+        -- Expresses the center of mass in 'df'
+        H_com_df = sim.multiplyMatrices(H_sf_df, H_com_sf)
+        
+        -- Formats I_sf for LUA matrix multiplication
+        I_lua = {{I_sf[1],I_sf[2],I_sf[3]},
+                 {I_sf[4],I_sf[5],I_sf[6]},
+                 {I_sf[7],I_sf[8],I_sf[9]}}
+        
+        -- Retrieves the rotation matrix from H_com_df
+        R_com_df = {{H_com_df[1],H_com_df[2], H_com_df[3]},
+                    {H_com_df[5],H_com_df[6], H_com_df[7]},
+                    {H_com_df[9],H_com_df[10],H_com_df[11]}}
+         
+        -- Expresses the inertia tensor in 'df' (R*I*R^T)
+        I_df_lua = mat_mult(mat_mult(R_com_df, I_lua), transpose(R_com_df))
+        
+        -- Formats I_df_lua for proper return (as a 1x9 vector)
+        I_df = {I_df_lua[1][1], I_df_lua[1][2], I_df_lua[1][3],
+                I_df_lua[2][1], I_df_lua[2][2], I_df_lua[2][3],
+                I_df_lua[3][1], I_df_lua[3][2], I_df_lua[3][3]}
+
+        return {}, I_df, {}, ''
     end
 end
 ----------------------------------------------------------------------------------
@@ -101,22 +148,40 @@ end
 
 ----------------------------------------------------------------------------------
 --/**
--- * @brief Returns the center of mass of a handle.
--- * @param inInts. The integer value of the handle. Example: {1} 
+-- * @brief Returns the center of mass of an object.
+-- * @param inInts. The integer value of the object's handle. Optionally, the
+--      handle of the desired reference frame 'df' (the detault is the shape's
+--      reference frame 'sf'). Example: [1] or [1, 2]
 -- * @param inFloats. The float input value. Example: {} 
--- * @param inStrings. The string input value. Example: {"absolute_frame"} or {}
--- * @param inBuffer. The buffer input value. Example: {}
--- * @returns the center of mass
-function get_center_of_mass(inInts,inFloats,inStrings,inBuffer)
-    if #inInts>=1 then
-        IM,matrix_SF_COM=sim.getShapeInertia(inInts[1])
-        matrix0_SF=sim.getObjectMatrix(inInts[1],-1)       
+-- * @param inStrings. The name of the desired reference frame. Example: {"absolute_frame"} or {}
+-- * @returns the vector of the object's center of mass
+function get_center_of_mass(inInts, inFloats, inStrings)
+    if #inInts==1 then
+        -- Retrieves the center of mass in 'sf'
+        _, H_com_sf = sim.getShapeInertia(inInts[1])
+     
         if inStrings[1] == 'absolute_frame' then
-            resultMatrix = sim.multiplyMatrices(matrix0_SF,matrix_SF_COM)
+            -- Retrieves the homogeneous transformation matrix between 'sf' and 'absolute_frame'
+            H_sf_0 = sim.getObjectMatrix(inInts[1], -1)
+
+            -- Expresses the center of mass in 'absolute_frame'
+            H_com_0 = sim.multiplyMatrices(H_sf_0, H_com_sf)
+            
+            return {}, {H_com_0[4], H_com_0[8],H_com_0[12]}, {}, ''
         else
-            resultMatrix = matrix_SF_COM
+            return {}, {H_com_sf[4], H_com_sf[8],H_com_sf[12]}, {}, ''
         end        
-        return {},{resultMatrix[4], resultMatrix[8],resultMatrix[12]},{},''              
+    elseif #inInts==2 then
+        -- Retrieves the center of mass in 'sf'
+        _, H_com_sf = sim.getShapeInertia(inInts[1])
+        
+        -- Retrieves the homogeneous transformation matrix between 'sf' and 'df'
+        H_sf_df = sim.getObjectMatrix(inInts[1], inInts[2])
+        
+        -- Expresses the center of mass in 'df'
+        H_com_df = sim.multiplyMatrices(H_sf_df, H_com_sf)
+        
+        return {}, {H_com_df[4], H_com_df[8], H_com_df[12]}, {}, ''
     end
 end
 ----------------------------------------------------------------------------------
