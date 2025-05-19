@@ -25,6 +25,7 @@ Contributors:
 #include <dqrobotics/robot_modeling/DQ_SerialManipulatorDH.h>
 #include <dqrobotics/robot_modeling/DQ_SerialManipulatorMDH.h>
 #include <dqrobotics/robot_modeling/DQ_SerialManipulatorDenso.h>
+#include <type_traits>
 
 
 using namespace DQ_robotics;
@@ -36,7 +37,7 @@ using namespace DQ_robotics;
  * @param msg    A message to be displayed.
  */
 template<typename T>
-void perform_tests(const std::shared_ptr<T>& robot,
+void perform_tests(const T& robot,
                    const std::string& msg
                    );
 
@@ -58,21 +59,21 @@ int main()
 
     perform_tests(dh_robot,  "DQ_SerialManipulatorDH");
     perform_tests(mdh_robot, "DQ_SerialManipulatorMDH");
-    perform_tests(mdh_robot, "DQ_SerialManipulatorDenso");
+    perform_tests(denso_robot, "DQ_SerialManipulatorDenso");
 
     return 0;
 }
 
 template<typename T>
-void perform_tests(const std::shared_ptr<T>& robot, const std::string& msg){
+void perform_tests(const T& robot, const std::string& msg){
 
     // Test get_joint_type
     for (int i=0;i<robot->get_dim_configuration_space();i++)
              assert(robot->get_joint_type(i) == DQ_JointType::REVOLUTE);
 
     // Test set_joint_type and get_joint_types
+    constexpr bool denso = (std::is_same<T, std::shared_ptr<DQ_SerialManipulatorDenso>>::value);
     DQ_JointType target_joint_type = DQ_JointType::PRISMATIC;
-    auto denso = std::dynamic_pointer_cast<DQ_SerialManipulatorDenso>(robot);
     if (denso)
         target_joint_type = DQ_JointType::REVOLUTE;
     for (int i=0;i<robot->get_dim_configuration_space();i++)
