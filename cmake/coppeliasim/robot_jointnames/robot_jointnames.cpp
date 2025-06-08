@@ -39,11 +39,9 @@ int main()
         cs.start_simulation();
         std::vector<std::string> robotnames = {"UR5", "Franka", "UMIRobot"};
         for(auto& robotname : robotnames)
-        {
-            cs.get_joint_positions(cs.get_jointnames_from_object(robotname));
             std::cout<<robotname<<" configuration: "
                       <<cs.get_joint_positions(cs.get_jointnames_from_object(robotname)).transpose()<<std::endl;
-        }
+
         cs.stop_simulation();
     }
     catch (const std::runtime_error& e)
