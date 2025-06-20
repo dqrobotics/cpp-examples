@@ -37,12 +37,16 @@ Contributors:
 /**
  * @brief move_to_configuration This method performs a kinematic control at the joint-space level.
  * @param target_configuration The desired robot configuration.
+ * @param coppeliasim_interface The coppeliasim interface.
  * @param coppeliasim_robot The coppeliasim robot.
+ * @param model The kinematic model
  * @param proportional_gain The proportional controller. This parameter affects the convergence rate.
  * @param error_tolerance The error norm tolerance.
  */
 void move_to_configuration(const VectorXd& target_configuration,
+                           const std::shared_ptr<DQ_CoppeliaSimInterfaceZMQ>& coppeliasim_interface,
                            const std::shared_ptr<DQ_CoppeliaSimRobotZMQ>& coppeliasim_robot,
+                           const std::shared_ptr<DQ_Kinematics>& model,
                            const double& proportional_gain,
                            const double& error_tolerance);
 
@@ -51,17 +55,18 @@ int main()
 {
     auto cs = std::make_shared<DQ_CoppeliaSimInterfaceZMQ>();
     try {
-        cs->connect();
+        cs->connect("localhost", 23000, 1000);
         auto panda = std::make_shared<FrankaEmikaPandaCoppeliaSimZMQRobot>("Franka", cs);
+        auto panda_model =  std::make_shared<DQ_SerialManipulatorMDH>(panda->kinematics());
         cs->start_simulation();
 
         VectorXd target_pos_1 = DQ_robotics::deg2rad((VectorXd(7)<<90,90,135,-45,90,180,0).finished());
         VectorXd target_pos_2 = DQ_robotics::deg2rad((VectorXd(7)<<-90,90,135,-45,90,180,0).finished());
         VectorXd target_pos_3 = DQ_robotics::deg2rad((VectorXd(7)<<0,0,0,-90,0,90,0).finished());
 
-        move_to_configuration(target_pos_1, panda, 1, 0.01);
-        move_to_configuration(target_pos_2, panda, 1, 0.01);
-        move_to_configuration(target_pos_3, panda, 1, 0.01);
+        move_to_configuration(target_pos_1, cs, panda, panda_model, 1, 0.01);
+        move_to_configuration(target_pos_2, cs, panda, panda_model, 1, 0.01);
+        move_to_configuration(target_pos_3, cs, panda, panda_model, 1, 0.01);
 
         cs->stop_simulation();
     }
@@ -73,7 +78,9 @@ int main()
 
 
 void move_to_configuration(const VectorXd& target_configuration,
+                           const std::shared_ptr<DQ_CoppeliaSimInterfaceZMQ>& coppeliasim_interface,
                            const std::shared_ptr<DQ_CoppeliaSimRobotZMQ>& coppeliasim_robot,
+                           const std::shared_ptr<DQ_Kinematics>& model,
                            const double& proportional_gain,
                            const double& error_tolerance)
 {
@@ -82,9 +89,11 @@ void move_to_configuration(const VectorXd& target_configuration,
     while (error.norm() > error_tolerance)
     {
         VectorXd q = coppeliasim_robot->get_configuration();
+        coppeliasim_interface->set_object_pose("Frame_x", model->fkm(q));
         error = q-qd;
         VectorXd u = -proportional_gain*error;
         coppeliasim_robot->set_target_configuration_velocities(u);
     }
+    std::cout<<"Target completed!"<<std::endl;
 
 }
