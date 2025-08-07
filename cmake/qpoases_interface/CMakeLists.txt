@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.1)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.5...3.26)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../dqrobotics_dependencies.cmake)
 
 project(qpoases_interface)
 
