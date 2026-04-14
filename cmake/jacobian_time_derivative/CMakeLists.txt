@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.22...3.28)
 include(${CMAKE_CURRENT_SOURCE_DIR}/../dqrobotics_dependencies.cmake)
 
 project(jacobian_time_derivative)
