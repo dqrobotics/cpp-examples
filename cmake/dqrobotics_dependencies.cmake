@@ -26,9 +26,12 @@ endif()
 
 if(WIN32)
     ADD_DEFINITIONS(-D_USE_MATH_DEFINES) 
-    FIND_PACKAGE(Eigen3 CONFIG REQUIRED) 
+    FIND_PACKAGE(Eigen3 CONFIG REQUIRED)
+    # vcpkg's Eigen3Config.cmake does not reliably populate the legacy
+    # EIGEN3_INCLUDE_DIR variable, so we link against the imported target
+    # Eigen3::Eigen instead, which carries its own include directories.
+    LINK_LIBRARIES(Eigen3::Eigen)
     INCLUDE_DIRECTORIES(
-	${EIGEN3_INCLUDE_DIR}
 	# Default path when using cmake .., cmake --build ., cmake --install .
 	"C:/Program Files (x86)/dqrobotics/include"
 	) 
