@@ -3,6 +3,7 @@
 
 #include "test_issue_24.h"
 
+#include<cassert>
 #include<dqrobotics/DQ.h>
 using namespace DQ_robotics;
 
