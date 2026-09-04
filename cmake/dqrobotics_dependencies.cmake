@@ -3,7 +3,7 @@ if(WIN32)
 endif()
 
 project(dqrobotics_dependencies)
-set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD 17)
 
 if(UNIX AND NOT APPLE)
     FIND_PACKAGE(Eigen3 REQUIRED)

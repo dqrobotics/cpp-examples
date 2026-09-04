@@ -1,0 +1,11 @@
+{
+	"name": "C++",
+	"image": "ghcr.io/dqrobotics/container:resolute",
+
+    "customizations" : {
+      "jetbrains" : {
+        "backend" : "CLion"
+      }
+    },
+
+}
